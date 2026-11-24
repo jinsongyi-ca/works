@@ -129,7 +129,7 @@ The accent is always a fill (chips, marker band, underline), never a text colour
 - Hook: Same events, every month. Planned from memory, every time.
 - THE GAP: We ran online and in-person events for 2 B2B programs serving 500+ client accounts. The events repeated, but there was no SOP. Every step lived in someone's memory.
 - THE MOVE: The events were cookie cutter, so I made them repeatable. I built an automated project management system in Smartsheet: enter the event date, and every action item appears with its own due date.
-- THE RESULT: Coordination time fell by more than half, and every new event started from the same plan.
+- THE RESULT: Coordination time fell by more than half, and every new event started from the same plan. For our 50th anniversary, I helped put clients and the brands we represented in one room, with a trade show to make business happen.
 - Number: 50%+ · LESS COORDINATION TIME
 - Abilities: Problem solving, Execution
 - Naming rule: the rail says Aramark; the role line and the timeline name the legal employer. Never a dash between the two names.
