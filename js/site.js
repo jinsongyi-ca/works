@@ -76,6 +76,7 @@
     const t = theme[i], st = stage.style;
     st.setProperty('--bg', t.bg); st.setProperty('--fg', t.fg); st.setProperty('--soft', t.soft);
     st.setProperty('--acc', t.acc); st.setProperty('--chipText', t.chip);
+    stage.classList.toggle('light', t.fg.toUpperCase() !== '#FFFFFF');
   }
   function setCur(i) {
     cur = i;
@@ -451,7 +452,7 @@
 
   /* ---------- cursor and the hidden 金 ---------- */
   const curEl = $('cur'), lit = $('lit'), hero = $('top');
-  const HOT = 'a,button,.b,[role="button"]';
+  const HOT = 'a,button,.lg,[role="button"]';
   let tx = innerWidth * 0.72, ty = innerHeight * 0.45, gx = tx, gy = ty, heroVisible = true, raf = 0, cursorOn = false;
   let lastMove = performance.now(), idleTimer = 0;
   function setCursor() {
@@ -475,7 +476,7 @@
   D.documentElement.addEventListener('mouseleave', () => curEl.classList.remove('show'));
   addEventListener('blur', () => curEl.classList.remove('show'));
   /* The gold light follows the cursor. With no pointer movement for 3s, or on touch screens,
-     it drifts on its own along a slow Lissajous path (about 12s per loop). Off under reduced motion. */
+     it drifts on its own along a slow Lissajous path (about 30s per loop): a slow searchlight. Off under reduced motion. */
   function glow() {
     raf = 0;
     if (reduce || !heroVisible) return;
@@ -483,11 +484,11 @@
     const drifting = !cursorOn || now - lastMove > 3000;
     if (drifting) {
       const right = Math.min(r.right, innerWidth), cx = (r.left + right) / 2, cy = r.top + r.height * 0.52;
-      const t = now / 12000 * 2 * Math.PI;
-      tx = cx + (right - r.left) * 0.3 * Math.sin(t);
-      ty = cy + r.height * 0.3 * Math.sin(2 * t + Math.PI / 3);
+      const t = now / 30000 * 2 * Math.PI;
+      tx = cx + (right - r.left) * 0.18 * Math.sin(t);
+      ty = cy + r.height * 0.18 * Math.sin(2 * t + Math.PI / 3);
     }
-    const k = drifting ? 0.05 : 0.12;
+    const k = drifting ? 0.03 : 0.12;
     gx += (tx - gx) * k; gy += (ty - gy) * k;
     lit.style.setProperty('--gx', (gx - r.left).toFixed(1) + 'px');
     lit.style.setProperty('--gy', (gy - r.top).toFixed(1) + 'px');
