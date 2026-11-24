@@ -160,7 +160,7 @@ Content:
 - **Maple Diversity**: IKEA chip ("Signed by Sonny"): `ikea`. Tissot chip ("Signed by Sonny"): `tissot-1`, `tissot-2`. Listerine chip ("New project from an existing client"): `listerine`.
 - **Live Nation**: The engagement ("Covers only; the full reports stay with the client"), text: "Seven reports across industry trends, business model, organizational structure and execution capability, ending in a seven-year growth roadmap with multiple scenarios." Images `team-1`, `team-2`.
 - **SparkLease**: Search growth: `seo-traffic`, `seo-rankings`. The product ("Screen space, packaged and tiered"): `listing-insert`, `boost`. OEM pitches: `polestar`, `alfa-romeo`, `lotus`, `fiat`, `ford-cn`.
-- **Aramark**: Event photos. Sonny will supply them into `img/aramark/`. Until then the work card reads "Event photos coming soon" with no thumbnails, and the panel shows the label only.
+- **Aramark**: 50th anniversary · Vancouver ("At River Rock Casino Resort: our clients, the brands we represented and a trade show in one room"): `aramark/anniversary-50`. The count line uses "1 piece" (singular). More photos may be added later to `img/aramark/`.
 - **CAOTAI Music**: SXSW 2021: `sxsw-lineup`, `sxsw-session`, `sxsw-stage`, then a press card: The New York Times, 2021, https://www.nytimes.com/2021/03/22/arts/music/sxsw-music-festival.html. Releases: Spotify `album/0hivH5g3UEx0sGSFIekNgn` (Wonder World), `album/3KJUv82FN4NRtWYbzW1eCf` (C.A.B Cypher), `track/2iHypimlBjipsM87Ssa2Mj` (Slurpee 思乐冰), `album/6rgJm6sg7XhwKISDlQdduT` (Zel, Vol. 1), `album/1wDFR8JIFUnkwrC5q0w2j6` (Papa!), then covers `cover-horse`, `cover-milkyway`, `cover-sea`. Virtual concerts: `virtual-1`, `virtual-2`, `virtual-3`. Festivals and tour: `festival-stage`, `festival-set`, `hainan-fw`, `shanghai-fw`, `shanghai-fw-2`, `tour`, `radio`.
 
 ## 7. Bridge and timeline
@@ -192,7 +192,7 @@ Nodes:
 - Small caps: CONTACT. Line (Caladea, large): "Got a problem with no answer yet?"
 - Email, large, `jinsongyi.ca@gmail.com`: click copies to the clipboard and shows "Copied" for 2s; also a `mailto:` fallback.
 - LINKEDIN ↗ → https://www.linkedin.com/in/songyijin
-- DOWNLOAD RÉSUMÉ ↓ → opens a small dialog asking for Name and Company (both required). On submit, POST to a form service endpoint (Formspree or Web3Forms; Sonny will create the account and give the endpoint or access key; keep it in one constant at the top of `js/site.js`), then reveal the download link to `files/sonny-jin-resume.pdf`. If the endpoint is not set yet, hide the résumé button. Sonny will supply a phone-free PDF. No phone number anywhere on the site.
+- DOWNLOAD RÉSUMÉ ↓ → a plain link to `files/sonny-jin-resume.pdf` (phone-free version, already in the repo) with the `download` attribute, filename "Sonny-Jin-Resume.pdf". No form or gate for now. No phone number anywhere on the site.
 - Footer: seal, © 2026 Sonny Jin · Toronto.
 
 ## 9. Voice and text rules (from the brand book)
@@ -209,7 +209,6 @@ Nodes:
 
 ## 11. Open items (not blockers)
 
-- Aramark event photos → `img/aramark/` (compress to WebP, longest side 1600px).
-- Phone-free résumé PDF → `files/sonny-jin-resume.pdf`.
-- Form service endpoint for the résumé gate.
+- Optional later: a name and company gate before the résumé download (needs a form service such as Formspree). Parked.
+- More Aramark photos, if any → `img/aramark/` (WebP, longest side 1600px).
 - Mobile design pass, later.

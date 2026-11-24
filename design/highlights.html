@@ -180,7 +180,7 @@ const H=[
  move:'The events were cookie cutter, so I made them repeatable. I built an automated project management system in Smartsheet: enter the event date, and every action item appears with its own due date.',
  res:'Coordination time fell by more than half, and every new event started from the same plan.',
  num:{pre:'',to:50,dec:0,suf:'%+',label:'Less coordination time'},ab:[0,3],
- ev:[{t:'Event photos',note:'Photos to come',img:[]}]},
+ ev:[{t:'50th anniversary · Vancouver',note:'At River Rock Casino Resort: our clients, the brands we represented and a trade show in one room',img:['aramark/anniversary-50']}]},
 {id:'caotai',name:'CAOTAI Music',role:'Artist Operations Manager',t:{bg:'#000000',fg:'#FFFFFF',soft:'rgba(255,255,255,.6)',acc:'#C3A986',accText:'#FFFFFF',chipText:'#14161A'},
  hook:'From a Beijing label to SXSW and The New York Times.',
  gap:'2021. Stages were closed, and a small Beijing label needed its artists heard outside China.',
@@ -206,7 +206,7 @@ H.forEach((h,i)=>{
    <div class="beat"><span class="caps">The gap</span><p>${h.gap}</p></div>
    <div class="beat"><span class="caps">The move</span><p>${h.move}</p></div>
    <div class="beat"><span class="caps">The result</span><p>${h.res}</p></div>
-   <button class="ev" data-i="${i}"><span class="th">${thumbs(h).map(t=>`<img src="../img/${t}.webp" alt="">`).join('')}</span><span class="tx"><span class="go caps">See the work <span class="ar">→</span></span><span class="ct">${count(h)?count(h)+' pieces · '+h.ev.map(e=>e.t.split(' · ')[0]).join(', '):'Event photos coming soon'}</span></span></button></div>
+   <button class="ev" data-i="${i}"><span class="th">${thumbs(h).map(t=>`<img src="../img/${t}.webp" alt="">`).join('')}</span><span class="tx"><span class="go caps">See the work <span class="ar">→</span></span><span class="ct">${count(h)?count(h)+(count(h)===1?' piece · ':' pieces · ')+h.ev.map(e=>e.t.split(' · ')[0]).join(', '):'Event photos coming soon'}</span></span></button></div>
    <div class="num"><b><span>${h.num.pre==='US$'?'<small>US$</small>':h.num.pre}<em style="font-style:normal">0</em>${h.num.suf}</span></b><span class="caps">${h.num.label}</span></div>`;
   body.appendChild(s);
 });
