@@ -3,7 +3,7 @@
   'use strict';
   const D = document, R = D.documentElement, $ = id => D.getElementById(id);
   const reduceMQ = matchMedia('(prefers-reduced-motion: reduce)');
-  const pinMQ = matchMedia('(min-width: 1024px) and (min-height: 600px)');
+  const pinMQ = matchMedia('(min-width: 1200px) and (min-height: 600px)');
   const fineMQ = matchMedia('(hover: hover) and (pointer: fine)');
   let reduce = reduceMQ.matches, pin = false;
 
@@ -133,7 +133,7 @@
     if (now - stepAt < 750) return true;           // the move itself
     if (quiet >= 180) return false;                 // a pause means a new gesture
     if (mag >= 15 && mag > prevMag * 1.6) return false; // a fresh flick during momentum
-    return now - stepAt < 4000;                     // momentum tail of the same gesture
+    return now - stepAt < 8000;                     // momentum tail of the same gesture
   }
   function stepHl(dir) {
     const s = hlState(), vh = innerHeight;
@@ -205,22 +205,6 @@
     const p = Math.min(1, Math.max(0, (innerHeight * 0.75 - r.top) / r.height));
     trunk.style.transform = 'scaleY(' + p.toFixed(4) + ')';
   }
-  const toggles = [...D.querySelectorAll('.nh')];
-  toggles.forEach(b => {
-    b.setAttribute('aria-expanded', 'false');
-    b.addEventListener('click', () => {
-      const node = b.closest('.node'), open = !node.classList.contains('open');
-      node.classList.toggle('open', open);
-      b.setAttribute('aria-expanded', String(open));
-    });
-  });
-  function openNode(id) {
-    const node = $(id);
-    if (!node) return;
-    const b = node.querySelector('.nh');
-    if (b && !node.classList.contains('open')) b.click();
-  }
-
   /* ---------- summary ---------- */
   const summary = $('summary');
   if ('IntersectionObserver' in window && !reduce) {
@@ -385,7 +369,6 @@
       return true;
     }
     if (/^t-/.test(id) && $(id)) {
-      openNode(id);
       $(id).scrollIntoView({ behavior: first ? 'instant' : behavior(), block: 'start' });
       return true;
     }
@@ -396,7 +379,6 @@
     if (!a) return;
     const h = a.getAttribute('href'), id = h.slice(1).split('/')[0];
     if (ids.includes(id)) { e.preventDefault(); route(h, false); setHash(h.slice(1)); }
-    else if (/^t-/.test(id)) openNode(id);
   });
   addEventListener('hashchange', () => route(location.hash, false));
 

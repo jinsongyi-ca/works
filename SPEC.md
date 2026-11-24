@@ -77,6 +77,7 @@ Build as `design/highlights.html`. Copy and colours below are final.
 - Supporting figures: stacked above the headline number, 44px Caladea in the text colour (no accent), each with a caps label in `soft`, separated by `soft` hairlines. They appear with THE RESULT and do not count up. A text item (CAOTAI) is set at 30px.
 - Abilities row at the foot: the tags this story proves get full opacity and an accent underline when THE MOVE appears; the rest at 25%.
 - Work card (after THE RESULT): three slightly rotated, overlapping 54px thumbnails of real work, an accent chip "SEE THE WORK →", and a count line ("14 pieces · Times Square, Posters, Venues"). On hover the thumbnails fan out, the arrow moves 5px, the border takes the accent. Opens the work panel.
+- Pinning needs a window at least 1200px wide and 600px tall; below that the stories stack in plain scroll. Under 1400px wide the rail narrows and the number column keeps 270 to 300px. Under 880px and 760px tall the hook, body text and spacing tighten so the work card always clears the abilities row (checked at 1200×750, 1280×720, 1280×800, 1366×768, 1440×900, 1536×864, 1600×900, 1920×1080).
 - Keyboard while the section is pinned: ↓ / J next, ↑ / K previous.
 - Deep links: `#neo-soul`, `#maple`, `#live-nation`, `#sparklease`, `#aramark`, `#caotai`; the hash updates as you scroll (replaceState). `#<id>/evidence` opens that highlight's work panel on load.
 
@@ -135,8 +136,8 @@ The accent is always a fill (chips, marker band, underline), never a text colour
 - Hook: Same events, every month. Planned from memory, every time.
 - THE GAP: We ran online and in-person events for 2 B2B programs serving 500+ client accounts. The events repeated, but there was no SOP. Every step lived in someone's memory.
 - THE MOVE: The events were cookie cutter, so I made them repeatable. I built an automated project management system in Smartsheet: enter the event date, and every action item appears with its own due date.
-- THE RESULT: Coordination time fell by more than half, and every new event started from the same plan. For our 50th anniversary, I helped put clients and the brands we represented in one room, with a trade show to make business happen.
-- Number: 50%+ · LESS COORDINATION TIME
+- THE RESULT: Project management time fell by more than half, and every new event started from the same plan. For our 50th anniversary, I helped put clients and the brands we represented in one room, with a trade show to make business happen.
+- Number: 50%+ · LESS PROJECT MANAGEMENT TIME
 - Abilities: Problem solving, Execution
 - Naming rule: the rail says Aramark; the role line and the timeline name the legal employer. Never a dash between the two names.
 
@@ -177,8 +178,8 @@ Bridge (paper, generous space): "That's the highlights." in muted on one line, "
 
 Timeline ("the whole road"), not prototyped; build to this description in the same visual language:
 - Paper background, ink text. One vertical trunk (1px, `line` colour, drawn progressively as you scroll; this is the 松, the pine trunk). Each node branches right of the trunk. Years sit left of the trunk in caps; organisation and role to the right with a one-line summary.
-- Oldest to newest. Click a node to expand inline (several may be open), 0.4s height ease.
-- Highlight nodes are condensed: a small filled champagne square on the trunk, the one-line summary, and "TOLD ABOVE ↑", which scrolls back to that highlight. Other nodes: hollow dot, expand to show details.
+- Oldest to newest. No expand interaction: education nodes show their details as an open list under the summary.
+- Highlight nodes are condensed: a small filled champagne square on the trunk, the one-line summary, and "TOLD ABOVE ↑", which scrolls back to that highlight. Education nodes: hollow dot, details always shown.
 - Last node: "2026 · Next", which scrolls to the close.
 - Deep links `#t-pacific`, `#t-neo-soul`, `#t-caotai`, `#t-schulich`, `#t-live-nation`, `#t-maple`, `#t-aramark`, `#t-sparklease`.
 - No gap year node.
@@ -187,10 +188,10 @@ Nodes:
 1. 2015–2019 · University of the Pacific · B.Sc. Summary: Started building before graduating. Details: PIES (Pacific Innovation and Entrepreneurship Summit) Award winner; two-time Dean's Honor Roll; co-founded NEO SOUL in 2016.
 2. 2016–2020 · NEO SOUL Entertainment · Co-founder. Highlight (condensed). Summary: Brought Chinese indie artists to US stages; 19 concerts, raised 2 rounds, US$6.3M valuation.
 3. 2021 · CAOTAI Music · Artist Operations Manager. Highlight. Summary: From a Beijing label to SXSW and The New York Times.
-4. 2021–2023 · Schulich School of Business, York University · MBA. Summary: An MBA built around media and the business of art. Details: graduated with distinction (GPA A-); Joyce Zemans Award of Achievement; IMASCO Awards in Art and Administration; Dean's Honour List; Graduate Diploma in Media Management, earned concurrently.
+4. 2021–2023 · Schulich School of Business, York University · MBA. Summary: Ranked No. 1 in Canada and 21st in the world by The Economist (2021). Graduated with distinction (GPA A-). Details: Joyce Zemans Award of Achievement; IMASCO Awards in Art and Administration; Dean's Honour List; Graduate Diploma in Media Management, earned concurrently.
 5. 2022–2023 · Live Nation Entertainment · Team Lead, Strategy Consultant (MBA consulting engagement). Highlight. Summary: A seven-year roadmap the client adopted.
 6. 2023–2024 · Maple Diversity Communications · Strategic Partnerships Manager. Highlight. Summary: Signed IKEA and Tissot; revenue up 14%.
-7. 2025 · Complete Purchasing Services (Aramark) · Program Marketing Manager. Highlight. Summary: An automated playbook that halved coordination time.
+7. 2025 · Complete Purchasing Services (Aramark) · Program Marketing Manager. Highlight. Summary: An automated playbook that halved project management time.
 8. 2026 · SparkLease · Product Marketing Manager. Highlight. Summary: Turned screen space into a product for carmakers.
 9. 2026 · Next.
 
