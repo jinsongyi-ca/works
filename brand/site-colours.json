@@ -1,0 +1,74 @@
+{
+  "gold-metal": "linear-gradient(120deg,#8C6F42 0%,#B39566 22%,#D9C39A 40%,#A88B5F 58%,#CDB386 76%,#8C6F42 100%)",
+  "note": "accent is always a fill (label chips, number marker, ability underline); chipText is the text colour on the accent",
+  "takeovers": [
+    {
+      "id": "neo-soul",
+      "name": "NEO SOUL",
+      "field": "#0A0A0A",
+      "text": "#FFFFFF",
+      "soft": "rgba(255,255,255,.6)",
+      "accent": "#D4AF37",
+      "chipText": "#0A0A0A"
+    },
+    {
+      "id": "maple",
+      "name": "Maple Diversity",
+      "field": "#09090B",
+      "text": "#FFFFFF",
+      "soft": "rgba(255,255,255,.6)",
+      "accent": "#FF6B2C",
+      "chipText": "#09090B"
+    },
+    {
+      "id": "live-nation",
+      "name": "Live Nation",
+      "field": "#E21836",
+      "text": "#FFFFFF",
+      "soft": "rgba(255,255,255,.75)",
+      "accent": "#000000",
+      "chipText": "#FFFFFF"
+    },
+    {
+      "id": "sparklease",
+      "name": "SparkLease",
+      "field": "#FAFAFA",
+      "text": "#1F1F1F",
+      "soft": "rgba(31,31,31,.58)",
+      "accent": "#FABB00",
+      "chipText": "#1F1F1F"
+    },
+    {
+      "id": "aramark",
+      "name": "Aramark",
+      "field": "#EB002A",
+      "text": "#FFFFFF",
+      "soft": "rgba(255,255,255,.75)",
+      "accent": "#FFFFFF",
+      "chipText": "#EB002A"
+    },
+    {
+      "id": "caotai",
+      "name": "CAOTAI Music",
+      "field": "#000000",
+      "text": "#FFFFFF",
+      "soft": "rgba(255,255,255,.6)",
+      "accent": "#C3A986",
+      "chipText": "#14161A"
+    }
+  ],
+  "clients": {
+    "IKEA": [
+      "#0058A3",
+      "#FFDB00"
+    ],
+    "Tissot": [
+      "#E1251B",
+      "#FFFFFF"
+    ],
+    "Listerine": [
+      "#00857C",
+      "#FFFFFF"
+    ]
+  }
+}

@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Sonny Jin · Highlights prototype</title>
+<style>
+@font-face{font-family:Cal;src:url(../fonts/Caladea-Regular.woff2) format("woff2");font-weight:400}
+@font-face{font-family:Cal;src:url(../fonts/Caladea-Bold.woff2) format("woff2");font-weight:700}
+@font-face{font-family:Kai;src:url(../fonts/LXGWWenKai-sub.woff2) format("woff2")}
+:root{--paper:#FAFAF8;--ink:#0B0C0E;--muted:#5E6268;--line:#E4E3DE;--champ:#C3A986;--champ-deep:#A88B5F;
+  --bg:#0A0A0A;--fg:#fff;--soft:rgba(255,255,255,.62);--acc:#D4AF37;--accText:#D4AF37;--ease:cubic-bezier(.2,.8,.2,1)}
+*{box-sizing:border-box;min-width:0}
+html,body{margin:0}
+body{background:var(--paper);color:var(--ink);font:16px/1.55 Cal,Georgia,serif;cursor:none}
+.caps{font:700 12px/16px Cal;letter-spacing:.18em;text-transform:uppercase}
+a{color:inherit}
+
+/* intro strip, so the entry into the highlights can be felt */
+.intro{height:70vh;display:flex;flex-direction:column;justify-content:flex-end;padding:0 64px 72px;border-bottom:1px solid var(--line)}
+.intro p{margin:0;color:var(--muted)} .intro h2{margin:14px 0 0;font:400 44px/1.1 Cal;max-width:22ch}
+
+/* pinned highlights */
+#hl{position:relative;height:1800vh}
+.stage{position:sticky;top:0;height:100vh;overflow:hidden;background:var(--bg);color:var(--fg);transition:background .6s var(--ease),color .6s var(--ease)}
+.top{position:absolute;left:64px;right:64px;top:30px;display:flex;justify-content:space-between;align-items:center;z-index:3}
+.top .brand{display:flex;gap:12px;align-items:center;text-decoration:none}
+.top .brand img{width:26px;height:26px} .top .brand span{font:400 15px Cal;letter-spacing:.22em}
+.top .count{color:var(--soft)}
+.rail{position:absolute;left:64px;top:0;bottom:0;width:270px;display:flex;flex-direction:column;justify-content:center;gap:18px;padding-left:22px;border-left:1px solid var(--soft);margin:150px 0 150px}
+.rail button{all:unset;cursor:none;font:400 17px/1.15 Cal;letter-spacing:.01em;opacity:.32;transition:font-size .5s var(--ease),opacity .5s var(--ease);transform-origin:left center}
+.rail button.on{opacity:1;font-size:32px;font-weight:700}
+.cn{font-family:Kai;font-weight:400;font-size:.82em;letter-spacing:.06em}
+.rail button:hover{opacity:.75} .rail button.on:hover{opacity:1}
+.body{position:absolute;left:400px;right:64px;top:0;bottom:0}
+.story{position:absolute;inset:0;display:grid;grid-template-columns:minmax(0,620px) 1fr;column-gap:56px;align-content:center;padding:96px 0 120px;opacity:0;visibility:hidden;transition:opacity .45s var(--ease),visibility .45s}
+.story.on{opacity:1;visibility:visible}
+.role{color:var(--soft);margin:0 0 18px;white-space:nowrap}
+.hook{margin:0 0 40px;font:400 50px/1.08 Cal;letter-spacing:-.005em}
+.beat{margin:0 0 22px;opacity:0;transform:translateY(24px);transition:opacity .6s var(--ease),transform .6s var(--ease)}
+.beat.on{opacity:1;transform:none}
+.beat .caps{display:inline-block;margin-bottom:8px;background:var(--acc);color:var(--chipText);padding:3px 8px 2px;border-radius:2px;transition:background .6s var(--ease),color .6s var(--ease)}
+.beat p{margin:0;font-size:19px;line-height:1.5;max-width:60ch}
+.ev{all:unset;cursor:none;display:flex;align-items:center;gap:18px;margin-top:10px;padding:10px 18px 10px 10px;border:1px solid var(--soft);border-radius:2px;opacity:0;transform:translateY(12px);transition:opacity .6s var(--ease) .15s,transform .6s var(--ease) .15s,border-color .3s,background .3s}
+.ev.on{opacity:1;transform:none}
+.ev .th{display:flex;padding-left:4px}
+.ev .th img{width:54px;height:54px;object-fit:cover;border-radius:2px;box-shadow:0 0 0 2px var(--bg);margin-left:-16px;transition:transform .45s var(--ease),margin .45s var(--ease)}
+.ev .th img:first-child{margin-left:0;transform:rotate(-6deg)} .ev .th img:nth-child(2){transform:rotate(3deg)} .ev .th img:nth-child(3){transform:rotate(-2deg)}
+.ev:hover .th img{margin-left:6px;transform:none} .ev:hover .th img:first-child{margin-left:0}
+.ev .tx{display:flex;flex-direction:column;gap:6px}
+.ev .go{align-self:flex-start;background:var(--acc);color:var(--chipText);padding:4px 10px 3px;border-radius:2px}
+.ev .go .ar{display:inline-block;transition:transform .3s var(--ease)} .ev:hover .go .ar{transform:translateX(5px)}
+.ev .ct{font-size:14px;color:var(--soft)}
+.ev:hover{border-color:var(--acc)}
+.num{align-self:end;padding-bottom:62px;opacity:0;transition:opacity .6s var(--ease)}
+.num.on{opacity:1}
+.num b{display:block;font:400 clamp(72px,7.2vw,116px)/.9 Cal;letter-spacing:-.02em;color:var(--accText);white-space:nowrap}
+.num b small{font-size:.42em;letter-spacing:0;margin-right:.06em;vertical-align:.95em}
+.ar{font-family:Arial,Helvetica,sans-serif;font-weight:400}
+.num b{display:inline-block!important;background:linear-gradient(transparent 62%,var(--acc) 62%,var(--acc) 92%,transparent 92%)}
+.num b>span{display:inline-block;background:linear-gradient(var(--accText) 62%,var(--chipText) 62%,var(--chipText) 92%,var(--accText) 92%);-webkit-background-clip:text;background-clip:text;color:transparent}
+.num .caps{display:block;margin-top:14px;color:var(--soft)}
+.abil{position:absolute;left:400px;bottom:44px;display:flex;z-index:2}
+.abil span{padding:0 20px;border-left:1px solid var(--soft);opacity:.25;transition:opacity .5s var(--ease)}
+.abil span:first-child{padding-left:0;border-left:0}
+.abil span i{font-style:normal;padding-bottom:4px;border-bottom:2px solid transparent;transition:border-color .5s var(--ease)}
+.abil span.lit{opacity:1} .abil span.lit i{border-color:var(--acc)}
+.hint{position:absolute;right:64px;bottom:44px;color:var(--soft)}
+
+/* summary */
+.summary{min-height:100vh;padding:120px 64px 80px;display:flex;flex-direction:column;justify-content:center}
+.summary h2{margin:0;font:400 56px/1.05 Cal}
+.summary .sub{margin:16px 0 56px;color:var(--muted);font-size:19px}
+.grid{display:grid;grid-template-columns:230px repeat(6,130px);row-gap:22px;align-items:center}
+.grid .h{color:var(--muted)} .grid .c{display:flex;justify-content:center}
+.dot{width:14px;height:14px;border:1px solid var(--champ-deep);border-radius:2px;transform:scale(.4);opacity:0;transition:transform .5s var(--ease),opacity .5s var(--ease)}
+.dot.f{background:var(--champ)}
+.summary.in .dot{transform:none;opacity:1}
+.bridge{padding:160px 64px;border-top:1px solid var(--line);font:400 40px/1.2 Cal}
+.bridge span{display:block;color:var(--muted)}
+
+/* evidence panel */
+.scrim{position:fixed;inset:0;background:rgba(0,0,0,.4);opacity:0;visibility:hidden;transition:opacity .45s var(--ease),visibility .45s;z-index:20}
+.panel{position:fixed;top:0;right:0;bottom:0;width:62vw;background:var(--paper);color:var(--ink);transform:translateX(100%);transition:transform .45s var(--ease);z-index:21;overflow-y:auto;overscroll-behavior:contain}
+body.open .scrim{opacity:1;visibility:visible} body.open .panel{transform:none}
+.ph{position:sticky;top:0;background:var(--paper);display:flex;justify-content:space-between;align-items:center;padding:28px 48px;border-bottom:1px solid var(--line);z-index:2}
+.ph .t{display:flex;gap:14px;align-items:baseline} .ph .t span{color:var(--muted)}
+.x{all:unset;cursor:none;font:400 28px/1 Cal;padding:4px 8px}
+.pb{padding:16px 48px 64px}
+.item{margin-top:36px}
+.band{display:flex;align-items:center;gap:14px;margin-bottom:14px}
+.band .chip{padding:5px 10px;border-radius:2px}
+.band .note{color:var(--muted);font-size:15px}
+.strip{display:flex;gap:12px;overflow-x:auto;padding-bottom:10px;scrollbar-width:thin}
+.strip button{all:unset;cursor:none;flex:none;height:230px;background:#eee}
+.strip img{height:100%;width:auto;display:block;transition:opacity .3s}
+.strip button:hover img{opacity:.85}
+.spot{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.spot iframe{width:100%;height:152px;border:0;border-radius:12px}
+.press{display:flex;justify-content:space-between;align-items:center;border:1px solid var(--line);padding:22px 24px;text-decoration:none}
+.press b{font:400 22px Cal} .press span{color:var(--muted)}
+.press:hover{border-color:var(--ink)}
+.summ{font-size:18px;max-width:60ch;margin:0}
+.lb{position:fixed;inset:0;background:rgba(8,8,9,.94);z-index:30;display:none;align-items:center;justify-content:center}
+.lb.on{display:flex}
+.lb img{max-width:82vw;max-height:80vh;display:block}
+.lb .cap{position:absolute;left:0;right:0;bottom:36px;text-align:center;color:#cfcfcf}
+.lb button{all:unset;cursor:none;position:absolute;color:#fff;font:400 34px Cal;padding:16px}
+.lb .p{left:28px;top:50%} .lb .n{right:28px;top:50%} .lb .c{right:28px;top:20px}
+
+.cur{position:fixed;left:0;top:0;width:10px;height:10px;margin:-5px 0 0 -5px;border-radius:50%;background:var(--cc,var(--champ-deep));pointer-events:none;z-index:40;transition:width .25s,height .25s,margin .25s,background .25s,border .25s}
+.cur.big{width:44px;height:44px;margin:-22px 0 0 -22px;background:transparent;border:1px solid var(--cc,var(--champ-deep))}
+@media (prefers-reduced-motion:reduce){*{transition:none!important} body{cursor:auto} .cur{display:none} .rail button,.x,.ev,.strip button,.lb button{cursor:pointer}}
+@media (hover:none){body{cursor:auto} .cur{display:none}}
+</style></head><body>
+
+<section class="intro"><p class="caps">Prototype · Part 1 · Highlights</p><h2>Six problems with no answer yet. Scroll to see what I did about each.</h2></section>
+
+<section id="hl">
+  <div class="stage" id="stage">
+    <div class="top"><a class="brand" href="#"><img src="../seal.svg" alt=""><span>SONNY JIN</span></a><span class="count caps" id="count">01 / 05</span></div>
+    <nav class="rail" id="rail" aria-label="Highlights"></nav>
+    <div class="body" id="body"></div>
+    <div class="abil caps" id="abil"></div>
+    <div class="hint caps"><span class="ar">↑ ↓</span> to move</div>
+  </div>
+</section>
+
+<section class="summary" id="summary">
+  <p class="caps" style="color:var(--muted);margin:0 0 18px">Highlights, in sum</p>
+  <h2>Proven, six times.</h2>
+  <p class="sub">Every ability on this page is backed by at least three of the stories above.</p>
+  <div class="grid" id="grid"></div>
+</section>
+<section class="bridge"><span>That's the highlights.</span>Here's the whole road.</section>
+
+<div class="scrim" id="scrim"></div>
+<aside class="panel" id="panel" aria-label="Evidence"><div class="ph"><div class="t"><b class="caps" id="pt"></b><span class="caps">Evidence</span></div><button class="x" id="x" aria-label="Close">×</button></div><div class="pb" id="pb"></div></aside>
+<div class="lb" id="lb"><img id="lbi" alt=""><div class="cap caps" id="lbc"></div><button class="p" id="lbp" aria-label="Previous">←</button><button class="n" id="lbn" aria-label="Next">→</button><button class="c" id="lbx" aria-label="Close">×</button></div>
+<div class="cur" id="cur" aria-hidden="true"></div>
+
+<script>
+const AB=['Problem solving','Analysis','Strategy','Execution'];
+const H=[
+{id:'neo-soul',name:'NEO SOUL',role:'Co-founder',t:{bg:'#0A0A0A',fg:'#FFFFFF',soft:'rgba(255,255,255,.6)',acc:'#D4AF37',accText:'#FFFFFF',chipText:'#0A0A0A'},
+ hook:'The music was in China. Its audience was already in America.',
+ gap:'Chinese students across the US had almost nothing to go out for, while Chinese indie music was having its moment back home. Nobody was bringing the two together.',
+ move:'We brought the artists to American stages and built each tour city by city. There was no market data, so I built forecasting and pricing models from streaming, social and box office benchmarks to pick venues, size cities and price tickets.',
+ res:'19 concerts, forecasts within 5%. US$600K in revenue, US$250K raised, and a US$6.3M valuation in two years.',
+ num:{pre:'US$',to:6.3,dec:1,suf:'M',label:'Valuation in two years'},ab:[0,1,3],
+ ev:[{t:'Times Square · #NextNeoSoulArtist',note:'Our billboard poll on who to bring over next',img:['neosoul/timessquare-1','neosoul/timessquare-2']},
+     {t:'Posters',img:['neosoul/poster-hyukoh','neosoul/poster-dmob','neosoul/poster-hhh','neosoul/poster-madi','neosoul/poster-sdy','neosoul/poster-sunset']},
+     {t:'Venues',note:'19 concerts across the US',img:['neosoul/mayan','neosoul/wilbur','neosoul/wilbur-stage','neosoul/regency','neosoul/royale','neosoul/chicago']}]},
+{id:'maple',name:'Maple Diversity',role:'Strategic Partnerships Manager',t:{bg:'#09090B',fg:'#FFFFFF',soft:'rgba(255,255,255,.6)',acc:'#FF6B2C',accText:'#FFFFFF',chipText:'#09090B'},
+ hook:'IKEA knew Canada. It didn’t yet know every Canadian.',
+ gap:'Big brands were missing multicultural Canada, and Maple needed new clients to grow.',
+ move:'I turned NielsenIQ, Vividata and Statistics Canada data into pitches for 11 brands, and automated prospecting so my time went into proposals.',
+ res:'I signed IKEA and Tissot myself. Revenue grew 14% year over year, and a rebuilt vendor pipeline cut localization costs by 25%.',
+ num:{pre:'+',to:14,dec:0,suf:'%',label:'Revenue, year over year'},ab:[1,2,3],
+ ev:[{t:'IKEA',c:['#0058A3','#FFDB00'],note:'Signed by Sonny',img:['maple/ikea']},
+     {t:'Tissot',c:['#E1251B','#FFFFFF'],note:'Signed by Sonny',img:['maple/tissot-1','maple/tissot-2']},
+     {t:'Listerine',c:['#00857C','#FFFFFF'],note:'New project from an existing client',img:['maple/listerine']}]},
+{id:'live-nation',name:'Live Nation',role:'Team Lead, Strategy Consultant',t:{bg:'#E21836',fg:'#FFFFFF',soft:'rgba(255,255,255,.75)',acc:'#000000',accText:'#FFFFFF',chipText:'#FFFFFF'},
+ hook:'Seven of us. Seven reports. One roadmap the client kept.',
+ gap:'Live Nation wanted growth in markets it hadn’t entered yet. What stood in the way had not been mapped.',
+ move:'I brought Live Nation on as a client and led a team of seven through the diagnosis: industry, business model, organization, execution.',
+ res:'A seven-year, multi-scenario roadmap projecting 36.8% CAGR in untapped markets. The client adopted it.',
+ num:{pre:'',to:36.8,dec:1,suf:'%',label:'CAGR projected, untapped markets'},ab:[0,1,2],
+ ev:[{t:'The engagement',note:'Covers only; the full reports stay with the client',img:['livenation/team-1','livenation/team-2'],
+      text:'Seven reports across industry trends, business model, organizational structure and execution capability, ending in a seven-year growth roadmap with multiple scenarios.'}]},
+{id:'sparklease',name:'SparkLease',role:'Product Marketing Manager',t:{bg:'#FAFAFA',fg:'#1F1F1F',soft:'rgba(31,31,31,.58)',acc:'#FABB00',accText:'#1F1F1F',chipText:'#1F1F1F'},
+ hook:'Carmakers didn’t need another website. They needed shelf space.',
+ gap:'SparkLease reached 100,000+ active users a year, with nothing packaged for the carmakers who wanted to reach them.',
+ move:'I grew organic leads with SEO and AI search optimization, then turned the site’s screen space into a tiered product for OEMs and their dealers.',
+ res:'Leads up 19% a month on average, top five on Google across 5 keyword groups. Seven cold pitches to BMW’s agency, Mercedes‑Benz and GM brands; three made the shortlist.',
+ num:{pre:'+',to:19,dec:0,suf:'%',label:'Organic leads, month over month'},ab:[0,2,3],
+ ev:[{t:'Search growth',img:['sparklease/seo-traffic','sparklease/seo-rankings']},
+     {t:'The product',note:'Screen space, packaged and tiered',img:['sparklease/listing-insert','sparklease/boost']},
+     {t:'OEM pitches',img:['sparklease/polestar','sparklease/alfa-romeo','sparklease/lotus','sparklease/fiat','sparklease/ford-cn']}]},
+{id:'aramark',name:'Aramark',role:'Program Marketing Manager · Complete Purchasing Services, an Aramark company',t:{bg:'#EB002A',fg:'#FFFFFF',soft:'rgba(255,255,255,.75)',acc:'#FFFFFF',accText:'#FFFFFF',chipText:'#EB002A'},
+ hook:'Same events, every month. Planned from memory, every time.',
+ gap:'We ran online and in-person events for 2 B2B programs serving 500+ client accounts. The events repeated, but there was no SOP. Every step lived in someone\u2019s memory.',
+ move:'The events were cookie cutter, so I made them repeatable. I built an automated project management system in Smartsheet: enter the event date, and every action item appears with its own due date.',
+ res:'Coordination time fell by more than half, and every new event started from the same plan.',
+ num:{pre:'',to:50,dec:0,suf:'%+',label:'Less coordination time'},ab:[0,3],
+ ev:[{t:'Event photos',note:'Photos to come',img:[]}]},
+{id:'caotai',name:'CAOTAI Music',role:'Artist Operations Manager',t:{bg:'#000000',fg:'#FFFFFF',soft:'rgba(255,255,255,.6)',acc:'#C3A986',accText:'#FFFFFF',chipText:'#14161A'},
+ hook:'From a Beijing label to SXSW and The New York Times.',
+ gap:'2021. Stages were closed, and a small Beijing label needed its artists heard outside China.',
+ move:'I ran content across platforms, plus festivals, distribution and brand partnerships.',
+ res:'One artist grew to 45,000 fans in five months. Our artists reached the top 5% of NetEase’s indie chart, played SXSW 2021, and got their own story in The New York Times.',
+ num:{pre:'',to:45,dec:0,suf:'K',label:'Fans in five months'},ab:[2,3],
+ ev:[{t:'SXSW 2021',img:['caotai/sxsw-lineup','caotai/sxsw-session','caotai/sxsw-stage'],
+      press:{o:'The New York Times',y:'2021',h:'https://www.nytimes.com/2021/03/22/arts/music/sxsw-music-festival.html'}},
+     {t:'Releases',spot:['album/0hivH5g3UEx0sGSFIekNgn','album/3KJUv82FN4NRtWYbzW1eCf','track/2iHypimlBjipsM87Ssa2Mj','album/6rgJm6sg7XhwKISDlQdduT','album/1wDFR8JIFUnkwrC5q0w2j6'],img:['caotai/cover-horse','caotai/cover-milkyway','caotai/cover-sea']},
+     {t:'Virtual concerts',img:['caotai/virtual-1','caotai/virtual-2','caotai/virtual-3']},
+     {t:'Festivals and tour',img:['caotai/festival-stage','caotai/festival-set','caotai/hainan-fw','caotai/shanghai-fw','caotai/shanghai-fw-2','caotai/tour','caotai/radio']}]}
+];
+const $=id=>document.getElementById(id), N=H.length;
+const stage=$('stage'),rail=$('rail'),body=$('body'),abil=$('abil'),hl=$('hl');
+const reduce=matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+function thumbs(h){const a=h.ev.flatMap(e=>e.img||[]);const pick=h.ev.map(e=>(e.img||[])[0]).filter(Boolean);for(const x of a){if(pick.length>=3)break;if(!pick.includes(x))pick.push(x)}return pick.slice(0,3)}
+function count(h){return h.ev.reduce((n,e)=>n+(e.img||[]).length+(e.spot||[]).length+(e.press?1:0),0)}
+H.forEach((h,i)=>{
+  const b=document.createElement('button');b.innerHTML=h.name+(h.cn?` <span class="cn" lang="zh-Hans">${h.cn}</span>`:'');b.onclick=()=>go(i);rail.appendChild(b);
+  const s=document.createElement('article');s.className='story';s.id=h.id;
+  s.innerHTML=`<div><p class="role caps">${h.role}</p><h2 class="hook">${h.hook}</h2>
+   <div class="beat"><span class="caps">The gap</span><p>${h.gap}</p></div>
+   <div class="beat"><span class="caps">The move</span><p>${h.move}</p></div>
+   <div class="beat"><span class="caps">The result</span><p>${h.res}</p></div>
+   <button class="ev" data-i="${i}"><span class="th">${thumbs(h).map(t=>`<img src="../img/${t}.webp" alt="">`).join('')}</span><span class="tx"><span class="go caps">See the work <span class="ar">→</span></span><span class="ct">${count(h)?count(h)+' pieces · '+h.ev.map(e=>e.t.split(' · ')[0]).join(', '):'Event photos coming soon'}</span></span></button></div>
+   <div class="num"><b><span>${h.num.pre==='US$'?'<small>US$</small>':h.num.pre}<em style="font-style:normal">0</em>${h.num.suf}</span></b><span class="caps">${h.num.label}</span></div>`;
+  body.appendChild(s);
+});
+AB.forEach(a=>{const s=document.createElement('span');s.innerHTML=`<i>${a}</i>`;abil.appendChild(s)});
+const stories=[...body.children],btns=[...rail.children],tags=[...abil.children];
+
+let cur=-1,counted=new Set();
+function theme(h){const r=stage.style;r.setProperty('--chipText',h.t.chipText);r.setProperty('--bg',h.t.bg);r.setProperty('--fg',h.t.fg);r.setProperty('--soft',h.t.soft);r.setProperty('--acc',h.t.acc);r.setProperty('--accText',h.t.accText);document.body.style.setProperty('--cc',h.t.fg==='#FFFFFF'?h.t.acc:h.t.fg)}
+function countUp(i){
+  if(counted.has(i))return;counted.add(i);const h=H[i],el=stories[i].querySelector('.num em');
+  if(reduce){el.textContent=h.num.to.toFixed(h.num.dec);return}
+  const t0=performance.now(),d=1200;
+  (function f(t){const k=Math.min(1,(t-t0)/d),e=1-Math.pow(1-k,3);el.textContent=(h.num.to*e).toFixed(h.num.dec);if(k<1)requestAnimationFrame(f)})(t0);
+}
+function update(){
+  const r=hl.getBoundingClientRect(),span=hl.offsetHeight-innerHeight;
+  const p=Math.min(.9999,Math.max(0,-r.top/span)),seg=p*N,i=Math.floor(seg),l=seg-i;
+  const inside=r.top<=0&&r.bottom>=innerHeight;
+  if(i!==cur){cur=i;theme(H[i]);stories.forEach((s,k)=>s.classList.toggle('on',k===i));btns.forEach((b,k)=>b.classList.toggle('on',k===i));
+    $('count').textContent=String(i+1).padStart(2,'0')+' / 0'+N;if(inside)history.replaceState(null,'','#'+H[i].id)}
+  const beats=stories[i].querySelectorAll('.beat'),stepOn=[l>=0||true,l>.25,l>.5];
+  beats.forEach((b,k)=>b.classList.toggle('on',stepOn[k]));
+  stories[i].querySelector('.ev').classList.toggle('on',stepOn[2]);
+  const nm=stories[i].querySelector('.num');nm.classList.toggle('on',stepOn[2]);if(stepOn[2])countUp(i);
+  tags.forEach((t,k)=>t.classList.toggle('lit',stepOn[1]&&H[i].ab.includes(k)));
+  if(p>.995||r.bottom<innerHeight*1.2) inSum();
+  document.body.style.setProperty('--cc',inside?(H[i].t.fg==='#FFFFFF'?H[i].t.acc:H[i].t.fg):'#A88B5F');
+}
+function go(i,beat=0){const span=hl.offsetHeight-innerHeight;scrollTo({top:hl.offsetTop+span*(i+beat)/N+2,behavior:reduce?'auto':'smooth'})}
+addEventListener('scroll',update,{passive:true});addEventListener('resize',update);
+
+/* summary grid */
+const g=$('grid');g.innerHTML='<span></span>'+H.map(h=>`<span class="h" style="text-align:center;font-size:16px">${h.full||h.name}</span>`).join('');
+AB.forEach((a,k)=>{g.insertAdjacentHTML('beforeend',`<span class="caps">${a}</span>`+H.map((h,i)=>`<span class="c"><i class="dot${h.ab.includes(k)?' f':''}" style="transition-delay:${(k*5+i)*40}ms"></i></span>`).join(''))});
+function inSum(){$('summary').classList.add('in')}
+new IntersectionObserver(e=>{if(e[0].isIntersecting)inSum()},{threshold:.35}).observe($('summary'));
+
+/* keyboard */
+addEventListener('keydown',e=>{
+  if(document.body.classList.contains('open')){if(e.key==='Escape'){lb.classList.contains('on')?closeLb():closeP()}
+    if(lb.classList.contains('on')){if(e.key==='ArrowRight')step(1);if(e.key==='ArrowLeft')step(-1)}return}
+  const r=hl.getBoundingClientRect();if(!(r.top<=1&&r.bottom>=innerHeight-1))return;
+  if(['ArrowDown','j'].includes(e.key)&&cur<N-1){e.preventDefault();go(cur+1)}
+  if(['ArrowUp','k'].includes(e.key)&&cur>0){e.preventDefault();go(cur-1)}
+});
+
+/* evidence panel */
+const panel=$('panel'),pb=$('pb'),lb=$('lb');let gal=[],gi=0;
+function openP(i){const h=H[i];$('pt').textContent=h.name;gal=[];
+  pb.innerHTML=h.ev.map(it=>{
+    const band=it.c?`<span class="chip caps" style="background:${it.c[0]};color:${it.c[1]}">${it.t}</span>`:`<span class="caps">${it.t}</span>`;
+    const imgs=(it.img||[]).map(s=>{gal.push({s,t:it.t});return `<button data-g="${gal.length-1}" aria-label="Open image"><img loading="lazy" src="../img/${s}.webp" alt="${it.t}"></button>`}).join('');
+    return `<div class="item"><div class="band">${band}${it.note?`<span class="note">${it.note}</span>`:''}</div>
+      ${it.text?`<p class="summ">${it.text}</p><div style="height:16px"></div>`:''}
+      ${it.spot?`<div class="spot">${it.spot.map(s=>`<iframe loading="lazy" src="https://open.spotify.com/embed/${s}?theme=0" allow="encrypted-media" title="Spotify"></iframe>`).join('')}</div><div style="height:16px"></div>`:''}
+      ${imgs?`<div class="strip">${imgs}</div>`:''}
+      ${it.press?`<div style="height:16px"></div><a class="press" href="${it.press.h}" target="_blank" rel="noopener"><b>${it.press.o}</b><span class="caps">${it.press.y} · Read <span class="ar">↗</span></span></a>`:''}</div>`}).join('');
+  pb.querySelectorAll('[data-g]').forEach(b=>b.onclick=()=>openLb(+b.dataset.g));
+  bindCur(pb);panel.scrollTop=0;document.body.classList.add('open');history.replaceState(null,'','#'+h.id+'/evidence')}
+function closeP(){document.body.classList.remove('open');history.replaceState(null,'','#'+H[cur].id)}
+body.addEventListener('click',e=>{const b=e.target.closest('.ev');if(b)openP(+b.dataset.i)});
+$('x').onclick=closeP;$('scrim').onclick=closeP;
+function openLb(i){gi=i;showLb();lb.classList.add('on')}
+function showLb(){$('lbi').src='../img/'+gal[gi].s+'.webp';$('lbc').textContent=gal[gi].t+' · '+(gi+1)+' / '+gal.length}
+function step(d){gi=(gi+d+gal.length)%gal.length;showLb()}
+function closeLb(){lb.classList.remove('on')}
+$('lbp').onclick=()=>step(-1);$('lbn').onclick=()=>step(1);$('lbx').onclick=closeLb;
+
+/* cursor */
+const cc=$('cur');addEventListener('pointermove',e=>{cc.style.transform=`translate(${e.clientX}px,${e.clientY}px)`});
+function bindCur(root){root.querySelectorAll('a,button').forEach(a=>{a.addEventListener('pointerenter',()=>cc.classList.add('big'));a.addEventListener('pointerleave',()=>cc.classList.remove('big'))})}
+bindCur(document);
+
+/* deep link */
+const m=location.hash.slice(1).split('/');const di=H.findIndex(h=>h.id===m[0]);
+if(di>=0){requestAnimationFrame(()=>{scrollTo(0,hl.offsetTop+(hl.offsetHeight-innerHeight)*(di+.6)/N);update();if(m[1]==='evidence')openP(di)})}
+update();
+</script>
+</body></html>
