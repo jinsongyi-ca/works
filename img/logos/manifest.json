@@ -1,0 +1,170 @@
+[
+ {
+  "id": "ikea",
+  "name": "IKEA",
+  "group": "worked",
+  "file": "img/logos/ikea.svg",
+  "height": 26,
+  "aspect": 2.43
+ },
+ {
+  "id": "tissot",
+  "name": "Tissot",
+  "group": "worked",
+  "file": "img/logos/tissot.svg",
+  "height": 25,
+  "aspect": 2.69
+ },
+ {
+  "id": "aveeno",
+  "name": "Aveeno",
+  "group": "worked",
+  "file": "img/logos/aveeno.svg",
+  "height": 20,
+  "aspect": 4.15
+ },
+ {
+  "id": "listerine",
+  "name": "Listerine",
+  "group": "worked",
+  "file": "img/logos/listerine.svg",
+  "height": 18,
+  "aspect": 5.0
+ },
+ {
+  "id": "audi",
+  "name": "Audi",
+  "group": "worked",
+  "file": "img/logos/audi.svg",
+  "height": 25,
+  "aspect": 2.73
+ },
+ {
+  "id": "panasonic",
+  "name": "Panasonic",
+  "group": "worked",
+  "file": "img/logos/panasonic.svg",
+  "height": 17,
+  "aspect": 5.73
+ },
+ {
+  "id": "fortisbc",
+  "name": "FortisBC",
+  "group": "worked",
+  "file": "img/logos/fortisbc.svg",
+  "height": 22,
+  "aspect": 4.33
+ },
+ {
+  "id": "live-nation",
+  "name": "Live Nation",
+  "group": "worked",
+  "file": "img/logos/live-nation.svg",
+  "height": 17,
+  "aspect": 7.86
+ },
+ {
+  "id": "sxsw",
+  "name": "SXSW",
+  "group": "worked",
+  "file": "img/logos/sxsw.svg",
+  "height": 20,
+  "aspect": 4.08
+ },
+ {
+  "id": "bmw",
+  "name": "BMW",
+  "group": "pitched",
+  "file": "img/logos/bmw.svg",
+  "height": 34,
+  "aspect": 0.99
+ },
+ {
+  "id": "mercedes-benz",
+  "name": "Mercedes-Benz",
+  "group": "pitched",
+  "file": "img/logos/mercedes-benz.svg",
+  "height": 34,
+  "aspect": 1.0
+ },
+ {
+  "id": "chevrolet",
+  "name": "Chevrolet",
+  "group": "pitched",
+  "file": "img/logos/chevrolet.svg",
+  "height": 28,
+  "aspect": 2.1
+ },
+ {
+  "id": "gmc",
+  "name": "GMC",
+  "group": "pitched",
+  "file": "img/logos/gmc.svg",
+  "height": 28,
+  "aspect": 2.21
+ },
+ {
+  "id": "buick",
+  "name": "Buick",
+  "group": "pitched",
+  "file": "img/logos/buick.svg",
+  "height": 17,
+  "aspect": 6.34
+ },
+ {
+  "id": "pg",
+  "name": "P&G",
+  "group": "pitched",
+  "file": "img/logos/pg.svg",
+  "height": 34,
+  "aspect": 1.0
+ },
+ {
+  "id": "reckitt",
+  "name": "Reckitt",
+  "group": "pitched",
+  "file": "img/logos/reckitt.svg",
+  "height": 30,
+  "aspect": 1.91
+ },
+ {
+  "id": "kimberly-clark",
+  "name": "Kimberly-Clark",
+  "group": "pitched",
+  "file": "img/logos/kimberly-clark.svg",
+  "height": 17,
+  "aspect": 7.02
+ },
+ {
+  "id": "manulife",
+  "name": "Manulife",
+  "group": "pitched",
+  "file": "img/logos/manulife.svg",
+  "height": 18,
+  "aspect": 5.03
+ },
+ {
+  "id": "bmo",
+  "name": "BMO",
+  "group": "pitched",
+  "file": "img/logos/bmo.svg",
+  "height": 25,
+  "aspect": 2.77
+ },
+ {
+  "id": "bdc",
+  "name": "BDC",
+  "group": "pitched",
+  "file": "img/logos/bdc.svg",
+  "height": 30,
+  "aspect": 1.87
+ },
+ {
+  "id": "olg",
+  "name": "OLG",
+  "group": "pitched",
+  "file": "img/logos/olg.svg",
+  "height": 36,
+  "aspect": 1.21
+ }
+]
