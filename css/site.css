@@ -83,19 +83,23 @@ h1 sup{position:absolute;right:0;left:auto;top:-.2em;font-size:.12em;font-weight
   h1 sup{opacity:0;transition:opacity .3s var(--ease)}
   h1:hover sup{opacity:1}
 }
-.proof{position:absolute;left:var(--m);right:var(--m);bottom:40px;border-top:1px solid var(--line);padding-top:12px;display:flex;align-items:center;z-index:2}
-/* brand marquee: one line, about 40s per loop, two identical halves so the loop is seamless */
+.proof{position:absolute;left:var(--m);right:var(--m);bottom:40px;border-top:1px solid var(--line);padding-top:12px;display:flex;align-items:center;gap:40px;z-index:2}
+/* fixed label at the left; only the logos scroll, sliding out from behind it */
+.plabel{flex:none;color:var(--muted);white-space:nowrap}
 .mq{flex:1;min-width:0;overflow:hidden;padding:10px 0;
-  -webkit-mask-image:linear-gradient(to right,transparent,#000 7%,#000 93%,transparent);mask-image:linear-gradient(to right,transparent,#000 7%,#000 93%,transparent)}
+  -webkit-mask-image:linear-gradient(to right,transparent,#000 48px,#000 calc(100% - 48px),transparent);mask-image:linear-gradient(to right,transparent,#000 48px,#000 calc(100% - 48px),transparent)}
 .mqt{display:flex;width:max-content;animation:mq 70s linear infinite}
-/* logo marquee: WORKED WITH + 9 logos, 96px, PITCHED TO + 12 logos, repeated once for a seamless loop */
-.mqs{display:flex;flex:none;align-items:center;gap:96px;padding-right:96px}
-.mg{display:flex;align-items:center;gap:56px}
-.mlg{display:flex;align-items:center;gap:56px}
-.ml{color:var(--muted);white-space:nowrap}
+/* one loop: 9 worked logos, a dot, 12 pitched logos, a dot at the seam; two identical halves */
+.mqs{display:flex;flex:none;align-items:center;gap:56px;padding-right:56px}
+.sep{flex:none;width:4px;height:4px;border-radius:50%;background:var(--line)}
 .lg{display:block;height:var(--h);width:auto;max-width:none;filter:grayscale(1) opacity(.6);transition:filter .25s var(--ease),transform .25s var(--ease)}
 .lg:hover{filter:none;transform:scale(1.08)}
-@media (max-width:767px){.lg{height:calc(var(--h) * .8)}.mg,.mlg{gap:44px}.mqs{gap:76px;padding-right:76px}}
+@media (max-width:767px){
+  .proof{flex-wrap:wrap;gap:10px 0}
+  .plabel,.mq{flex-basis:100%}
+  .lg{height:calc(var(--h) * .8)}
+  .mqs{gap:44px;padding-right:44px}
+}
 .proof:hover .mqt{animation-play-state:paused}
 @keyframes mq{to{transform:translateX(-50%)}}
 /* scroll prompt: centred word with two bouncing chevrons */
@@ -443,12 +447,12 @@ body.open .panel{transform:none;visibility:visible;transition:transform .45s var
   html{scroll-behavior:auto}
   *,*::before,*::after{transition:none!important;animation:none!important}
   .g.lit{display:none}
-  .mq{-webkit-mask-image:none;mask-image:none}
+  .proof{flex-wrap:wrap;row-gap:14px}
+  .plabel,.mq{flex-basis:100%}
+  .mq{-webkit-mask-image:none;mask-image:none;padding:0}
   .mqt{width:auto}
-  .mqs{flex:1;flex-direction:column;align-items:flex-start;gap:20px;padding:0}
-  .mqs[aria-hidden]{display:none}
+  .mqs{flex:1;flex-wrap:wrap;gap:16px 40px;padding:0}
+  .mqs[aria-hidden],.mqs .sep:last-child{display:none}
   .hero .cue{display:none}
-  .mg{flex-direction:column;align-items:flex-start;gap:12px}
-  .mlg{flex-wrap:wrap;gap:16px 40px}
   .wall img.on{transform:none}
 }
