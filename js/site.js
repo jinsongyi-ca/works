@@ -90,16 +90,29 @@
     const p = Math.min(0.9999, Math.max(0, -r.top / span)), seg = p * N, i = Math.floor(seg);
     return { r, span, i, l: seg - i, inside: r.top <= 1 && r.bottom >= innerHeight - 1 };
   }
+  /* Beats play in order on their own once a highlight is on screen; no scrolling needed. */
+  const BEAT_AT = [150, 1100, 2050];
+  const seen = new Set();
+  let timers = [], revealed = -1;
+  function reveal(i, instant) {
+    timers.forEach(clearTimeout); timers = [];
+    const st = stories[i], beats = st.querySelectorAll('.beat');
+    tags.forEach(t => t.classList.remove('lit'));
+    const steps = [
+      () => beats[0].classList.add('on'),
+      () => { beats[1].classList.add('on'); tags.forEach((t, k) => t.classList.toggle('lit', theme[i].ab.includes(k))); },
+      () => { beats[2].classList.add('on'); st.querySelector('.ev').classList.add('on'); st.querySelector('.num').classList.add('on'); countUp(i); seen.add(i); }
+    ];
+    if (instant || reduce || seen.has(i)) steps.forEach(f => f());
+    else steps.forEach((f, k) => timers.push(setTimeout(f, BEAT_AT[k])));
+  }
   function updateHighlights() {
     const s = hlState();
     if (s.i !== cur) setCur(s.i);
     if (s.r.top < innerHeight * 0.6 && s.r.bottom > -innerHeight) { loadThumbs(s.i); loadThumbs(s.i + 1); }
-    const st = stories[s.i], on = [true, s.l > 0.25, s.l > 0.5];
-    st.querySelectorAll('.beat').forEach((b, k) => b.classList.toggle('on', on[k]));
-    st.querySelector('.ev').classList.toggle('on', on[2]);
-    st.querySelector('.num').classList.toggle('on', on[2]);
-    if (on[2]) countUp(s.i);
-    tags.forEach((t, k) => t.classList.toggle('lit', on[1] && theme[s.i].ab.includes(k)));
+    const engaged = s.r.top <= innerHeight * 0.3 && s.r.bottom >= innerHeight * 0.7;
+    if (engaged && revealed !== s.i) { revealed = s.i; reveal(s.i); }
+    else if (!engaged && revealed !== -1 && (s.r.top > innerHeight * 0.5 || s.r.bottom < innerHeight * 0.5)) { revealed = -1; timers.forEach(clearTimeout); timers = []; }
     if (!panelOpen) {
       if (s.inside) setHash(ids[s.i]);
       else if (wasInside && ids.includes(location.hash.slice(1))) setHash('');
@@ -113,6 +126,52 @@
       scrollTo({ top: hl.offsetTop + span * (i + frac) / N + 2, behavior: behavior() });
     } else stories[i].scrollIntoView({ behavior: behavior(), block: 'start' });
   }
+
+  /* One scroll gesture moves exactly one highlight. Momentum from the same gesture is swallowed. */
+  let stepAt = -1e9, lastInput = 0, lastMag = 0;
+  function busy(now, quiet, mag, prevMag) {
+    if (now - stepAt < 750) return true;           // the move itself
+    if (quiet >= 180) return false;                 // a pause means a new gesture
+    if (mag >= 15 && mag > prevMag * 1.6) return false; // a fresh flick during momentum
+    return now - stepAt < 4000;                     // momentum tail of the same gesture
+  }
+  function stepHl(dir) {
+    const s = hlState(), vh = innerHeight;
+    if (s.inside) {
+      if (dir > 0 && s.i === N - 1) scrollTo({ top: $('summary').offsetTop, behavior: behavior() });
+      else if (dir < 0 && s.i === 0) scrollTo({ top: 0, behavior: behavior() });
+      else go(s.i + dir);
+      return true;
+    }
+    if (dir > 0 && s.r.top > 1 && s.r.top < vh * 0.9) { go(0); return true; }
+    if (dir < 0 && s.r.bottom < vh - 1 && s.r.bottom > vh * 0.1) { go(N - 1); return true; }
+    return false;
+  }
+  function onInput(e, dir, mag) {
+    if (!pin || panelOpen || !lb.hidden) return;
+    const now = performance.now(), quiet = now - lastInput, prevMag = lastMag;
+    lastInput = now; lastMag = mag;
+    if (busy(now, quiet, mag, prevMag)) { e.preventDefault(); return; }
+    const s = hlState(), vh = innerHeight;
+    if (!(s.r.top < vh * 0.9 && s.r.bottom > vh * 0.1)) return;
+    if (stepHl(dir)) { e.preventDefault(); stepAt = now; }
+  }
+  addEventListener('wheel', e => {
+    if (e.ctrlKey || Math.abs(e.deltaY) < 2 || Math.abs(e.deltaX) > Math.abs(e.deltaY)) return;
+    onInput(e, e.deltaY > 0 ? 1 : -1, Math.abs(e.deltaMode ? e.deltaY * 33 : e.deltaY));
+  }, { passive: false });
+  let touchY = null, touchDone = false;
+  addEventListener('touchstart', e => { touchY = e.touches[0].clientY; touchDone = false; }, { passive: true });
+  addEventListener('touchmove', e => {
+    if (touchY === null || !pin || panelOpen || !lb.hidden) return;
+    const s = hlState();
+    if (!(s.r.top < innerHeight * 0.9 && s.r.bottom > innerHeight * 0.1)) return;
+    const dy = touchY - e.touches[0].clientY;
+    if (touchDone) { e.preventDefault(); return; }
+    if (Math.abs(dy) < 40) { if (s.inside) e.preventDefault(); return; }
+    touchDone = true;
+    onInput(e, dy > 0 ? 1 : -1, 100);
+  }, { passive: false });
   railBtns.forEach((b, i) => b.addEventListener('click', () => go(i)));
 
   /* ---------- top bar and cursor colour follow the background ---------- */
@@ -188,7 +247,7 @@
     if (!pin) {
       stories.forEach(s => { s.classList.remove('on'); s.querySelectorAll('.on').forEach(e => e.classList.remove('on')); });
       stage.removeAttribute('style');
-      cur = -1;
+      cur = -1; revealed = -1;
     }
     resetNumbers();
     update();
@@ -196,7 +255,7 @@
   pinMQ.addEventListener('change', () => {
     const at = cur >= 0 ? cur : 0;
     setMode();
-    if (hl.getBoundingClientRect().top < 0) go(at, 0.6);
+    if (hl.getBoundingClientRect().top < 0) go(at);
   });
   reduceMQ.addEventListener('change', () => { reduce = reduceMQ.matches; setCursor(); update(); });
 
@@ -298,8 +357,14 @@
     const s = hlState();
     if (!s.inside) return;
     const k = e.key;
-    if ((k === 'ArrowDown' || k === 'j' || k === 'J') && s.i < N - 1) { e.preventDefault(); go(s.i + 1); }
-    else if ((k === 'ArrowUp' || k === 'k' || k === 'K') && s.i > 0) { e.preventDefault(); go(s.i - 1); }
+    const dir = (k === 'ArrowDown' || k === 'j' || k === 'J' || k === 'PageDown' || (k === ' ' && !e.shiftKey)) ? 1
+      : (k === 'ArrowUp' || k === 'k' || k === 'K' || k === 'PageUp' || (k === ' ' && e.shiftKey)) ? -1 : 0;
+    if (!dir) return;
+    if (/^(BUTTON|A)$/.test(e.target.tagName || '') && k === ' ') return;
+    e.preventDefault();
+    const now = performance.now();
+    if (now - stepAt < 450) return;
+    if (stepHl(dir)) stepAt = now;
   });
 
   /* ---------- in-page links and deep links ---------- */
@@ -310,9 +375,10 @@
       if (first || !pin || sub === 'evidence') {
         if (pin) {
           const span = hl.offsetHeight - innerHeight;
-          scrollTo({ top: hl.offsetTop + span * (i + 0.6) / N + 2, behavior: 'instant' });
+          scrollTo({ top: hl.offsetTop + span * i / N + 2, behavior: 'instant' });
+          update(); revealed = i; reveal(i, true);
         } else stories[i].scrollIntoView({ behavior: first || sub ? 'instant' : behavior(), block: 'start' });
-      } else go(i, 0.6);
+      } else go(i);
       update();
       if (sub === 'evidence') requestAnimationFrame(() => requestAnimationFrame(() => openPanel(i, stories[i].querySelector('.ev'))));
       else if (panelOpen) closePanel();

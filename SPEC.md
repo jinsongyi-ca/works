@@ -64,8 +64,8 @@ Build exactly as `design/opening.html`.
 Build as `design/highlights.html`. Copy and colours below are final.
 
 ### Behaviour
-- One section, pinned (`position: sticky`) at 100vh. Each highlight gets about 3 screens of scroll (6 highlights → section height about 1800vh).
-- Within a highlight: the hook and THE GAP show on entry; THE MOVE at about 25% of its scroll; THE RESULT, the number and the work card at about 50%. Beats fade in and rise 24px (0.6s, cubic-bezier(.2,.8,.2,1)). Earlier beats stay.
+- One section, pinned (`position: sticky`) at 100vh. Each highlight gets one screen of scroll (6 highlights → section height 700vh). One scroll gesture (wheel, trackpad fling, swipe, ↓ / J / Page Down / Space) moves exactly one highlight; momentum from the same gesture is ignored. Scrolling down from the last highlight goes to the summary; scrolling up from the first goes back to the opening.
+- Within a highlight the beats play on their own, no extra scrolling: the hook and THE GAP on entry, THE MOVE about 1s later, THE RESULT, the number and the work card about 1s after that. Beats fade in and rise 24px (0.6s, cubic-bezier(.2,.8,.2,1)). Earlier beats stay. A highlight already seen, or opened from a deep link, shows all beats at once.
 - Background and text colours crossfade 0.6s between highlights.
 - Left rail: employer names in their own case: NEO SOUL, Maple Diversity, Live Nation, SparkLease, Aramark, CAOTAI Music. Active 32px bold at full opacity; others 17px at about 30%. Thin vertical hairline at the left. Click jumps to that highlight. No years.
 - Top right counter: 01 / 06.
