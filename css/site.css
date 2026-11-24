@@ -65,8 +65,8 @@ button{font:inherit;color:inherit}
 .eyebrow{color:var(--muted)}
 .namerow{display:flex;align-items:stretch;gap:30px;margin-top:30px}
 h1{margin:0;font-weight:400;font-size:clamp(88px,10vw,150px);line-height:.78;letter-spacing:.02em;padding-top:.06em;color:var(--champ)}
-h1 .w1{position:relative}
-h1 sup{position:absolute;left:100%;top:-.2em;margin-left:.03em;font-size:.12em;font-weight:400;letter-spacing:.04em;white-space:nowrap;line-height:1;color:var(--champ-deep)}
+h1 .w1{position:relative;margin-right:.34em}
+h1 sup{position:absolute;left:100%;top:.04em;margin-left:.06em;font-size:.12em;font-weight:400;letter-spacing:.04em;white-space:nowrap;line-height:1;color:var(--champ-deep)}
 .inscr{display:flex;flex-direction:column;justify-content:space-between;font:400 26px/1 var(--cn);color:var(--ink);padding:.18em 0 .02em}
 .pos{margin:64px 0 0;font-size:clamp(30px,2.9vw,42px);line-height:1.18}
 .pos span{display:block;color:var(--muted)}
@@ -122,6 +122,14 @@ h1 sup{position:absolute;left:100%;top:-.2em;margin-left:.03em;font-size:.12em;f
 .num em{font-style:normal}
 .num b small{font-size:.42em;letter-spacing:0;margin-right:.06em;vertical-align:.95em}
 .num .lab{display:block;margin-top:14px;color:var(--soft)}
+/* supporting figures, stacked above the headline number */
+.stats{margin:0 0 34px}
+.stat{padding:16px 0 18px;border-top:1px solid var(--soft)}
+.stat:last-child{border-bottom:1px solid var(--soft);margin-bottom:6px}
+.sv{display:block;font:400 44px/1 var(--serif);letter-spacing:-.01em;white-space:nowrap}
+.sv small{font-size:.42em;letter-spacing:0;margin-right:.08em;vertical-align:.95em}
+.stat.txt .sv{font-size:30px;line-height:1.1;white-space:normal}
+.sl{display:block;margin-top:10px;color:var(--soft)}
 .tags{grid-column:1/-1;display:flex;flex-wrap:wrap;margin-top:28px}
 .tags span{padding:0 20px;border-left:1px solid var(--soft)}
 .tags span:first-child{padding-left:0;border-left:0}
@@ -293,7 +301,7 @@ body.open .panel{transform:none;visibility:visible;transition:transform .45s var
   .hero{height:auto;min-height:100svh;display:flex;flex-direction:column;justify-content:space-between;padding:110px var(--m) 32px}
   .intro{position:static;width:auto}
   .namerow{gap:14px}
-  h1{font-size:clamp(56px,17vw,88px)}
+  h1{font-size:clamp(46px,14vw,80px);white-space:nowrap}
   .inscr{font-size:18px}
   .pos{margin-top:40px;font-size:26px}
   .hero .abil{margin-top:28px;row-gap:8px}

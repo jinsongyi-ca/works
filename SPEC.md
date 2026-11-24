@@ -50,7 +50,7 @@ Build exactly as `design/opening.html`.
 - Background `paper` `#FAFAF8`.
 - Eyebrow, caps: MARKETING, BRAND & BUSINESS STRATEGY · TORONTO.
 - Name: SONNY JIN, Caladea, very large, solid `champagne` `#C3A986`. It does not react to the cursor.
-- (Song-yi): about 1/8 of the name size, `champagne-deep`, placed diagonally off the top right corner of SONNY. It must not widen the gap between SONNY and JIN.
+- (Song-yi): about 1/8 of the name size, `champagne-deep`, set in a widened gap between SONNY and JIN (about 0.6em), near the top of the capitals, just right of SONNY.
 - 金 松 毅: vertical, LXGW WenKai, ink, to the right of the name; the first and last characters align with the top and the baseline of the name. No seal under it.
 - Positioning, two lines: "When the answer isn't there yet," in `ink-muted`; "I go find it." bold, solid `champagne`.
 - Abilities, caps, separated by thin vertical rules: PROBLEM SOLVING | ANALYSIS | STRATEGY | EXECUTION.
@@ -74,6 +74,7 @@ Build as `design/highlights.html`. Copy and colours below are final.
 - Hook: Caladea, about 50px, line-height 1.08.
 - Beat label (THE GAP / THE MOVE / THE RESULT): caps on an **accent chip** (accent fill, `chipText` text, 2px radius).
 - Number: very large (clamp 72 to 116px), counts up once (1.2s ease-out cubic) when THE RESULT appears. A currency prefix is set small and raised. An **accent marker band** runs across the lower third (62% to 92% of the line box); the part of the digits over the band switches to `chipText` (two-stop text gradient with background-clip: text; see prototype). Label under it in small caps, `soft`.
+- Supporting figures: stacked above the headline number, 44px Caladea in the text colour (no accent), each with a caps label in `soft`, separated by `soft` hairlines. They appear with THE RESULT and do not count up. A text item (CAOTAI) is set at 30px.
 - Abilities row at the foot: the tags this story proves get full opacity and an accent underline when THE MOVE appears; the rest at 25%.
 - Work card (after THE RESULT): three slightly rotated, overlapping 54px thumbnails of real work, an accent chip "SEE THE WORK →", and a count line ("14 pieces · Times Square, Posters, Venues"). On hover the thumbnails fan out, the arrow moves 5px, the border takes the accent. Opens the work panel.
 - Keyboard while the section is pinned: ↓ / J next, ↑ / K previous.
@@ -99,6 +100,7 @@ The accent is always a fill (chips, marker band, underline), never a text colour
 - THE GAP: Chinese students across the US had almost nothing to go out for, while Chinese indie music was having its moment back home. Nobody was bringing the two together.
 - THE MOVE: We brought the artists to American stages and built each tour city by city. There was no market data, so I built forecasting and pricing models from streaming, social and box office benchmarks to pick venues, size cities and price tickets.
 - THE RESULT: 19 concerts, forecasts within 5%. US$600K in revenue, US$250K raised, and a US$6.3M valuation in two years.
+- Supporting: US$600K · REVENUE; US$250K · RAISED
 - Number: US$ 6.3 M · VALUATION IN TWO YEARS
 - Abilities: Problem solving, Analysis, Execution
 
@@ -107,6 +109,7 @@ The accent is always a fill (chips, marker band, underline), never a text colour
 - THE GAP: Brands knew multicultural Canada mattered, but few had the data or the cultural know-how to reach it. Maple had to prove the case to win new clients.
 - THE MOVE: I turned NielsenIQ, Vividata and Statistics Canada data into the case for each brand: who the audience was, where to reach them and what to say. I pitched 11 brands across CPG, automotive, tech and the public sector, and automated prospecting so my time went into proposals.
 - THE RESULT: I signed IKEA and Tissot myself, and won new projects from Aveeno, Listerine, Audi and Panasonic. Revenue grew 14% year over year, and a rebuilt vendor pipeline cut localization costs by 25%.
+- Supporting: 25% · LOWER LOCALIZATION COSTS
 - Number: +14% · REVENUE, YEAR OVER YEAR
 - Abilities: Analysis, Strategy, Execution
 
@@ -115,6 +118,7 @@ The accent is always a fill (chips, marker band, underline), never a text colour
 - THE GAP: Live Nation wanted growth in markets it hadn't entered yet. What stood in the way had not been mapped.
 - THE MOVE: I brought Live Nation on as a client and led a team of seven through the diagnosis: industry, business model, organization, execution.
 - THE RESULT: A seven-year, multi-scenario roadmap projecting 36.8% CAGR in untapped markets. The client adopted it.
+- Supporting: 7 · TEAM I LED
 - Number: 36.8% · CAGR PROJECTED, UNTAPPED MARKETS
 - Abilities: Problem solving, Analysis, Strategy
 
@@ -123,6 +127,7 @@ The accent is always a fill (chips, marker band, underline), never a text colour
 - THE GAP: SparkLease reached 100,000+ active users a year, with nothing packaged for the carmakers who wanted to reach them.
 - THE MOVE: I grew organic leads with SEO and AI search optimization, then turned the site's screen space into a tiered product for OEMs and their dealers.
 - THE RESULT: Leads up 19% a month on average, top five on Google across 5 keyword groups. Seven cold pitches to BMW's agency, Mercedes‑Benz and GM brands; three made the shortlist.
+- Supporting: 3 · SHORTLISTED FROM 7 COLD PITCHES
 - Number: +19% · ORGANIC LEADS, MONTH OVER MONTH
 - Abilities: Problem solving, Strategy, Execution
 
@@ -140,6 +145,7 @@ The accent is always a fill (chips, marker band, underline), never a text colour
 - THE GAP: 2021. Stages were closed, and a small Beijing label needed its artists heard outside China.
 - THE MOVE: I ran content across platforms, plus festivals, distribution and brand partnerships.
 - THE RESULT: One artist grew to 45,000 fans in five months. Our artists reached the top 5% of NetEase's indie chart, played SXSW 2021, and got their own story in The New York Times.
+- Supporting: The New York Times · EARNED OUR OWN STORY
 - Number: 45K · FANS IN FIVE MONTHS
 - Abilities: Strategy, Execution
 
