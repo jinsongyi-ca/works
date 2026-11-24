@@ -65,7 +65,7 @@ Build as `design/highlights.html`. Copy and colours below are final.
 
 ### Behaviour
 - One section, pinned (`position: sticky`) at 100vh. Each highlight gets one screen of scroll (6 highlights → section height 700vh). One scroll gesture (wheel, trackpad fling, swipe, ↓ / J / Page Down / Space) moves exactly one highlight; momentum from the same gesture is ignored. Scrolling down from the last highlight goes to the summary; scrolling up from the first goes back to the opening.
-- Within a highlight the beats play on their own, no extra scrolling: the hook and THE GAP on entry, THE MOVE about 1s later, THE RESULT, the number and the work card about 1s after that. Beats fade in and rise 24px (0.6s, cubic-bezier(.2,.8,.2,1)). Earlier beats stay. A highlight already seen, or opened from a deep link, shows all beats at once.
+- Within a highlight the beats play on their own, no extra scrolling: the hook and THE GAP on entry, THE MOVE about 0.4s later, THE RESULT, the number and the work card about 0.4s after that. Beats fade in and rise 24px (0.6s, cubic-bezier(.2,.8,.2,1)). Earlier beats stay. A highlight already seen, or opened from a deep link, shows all beats at once.
 - Background and text colours crossfade 0.6s between highlights.
 - Left rail: employer names in their own case: NEO SOUL, Maple Diversity, Live Nation, SparkLease, Aramark, CAOTAI Music. Active 32px bold at full opacity; others 17px at about 30%. Thin vertical hairline at the left. Click jumps to that highlight. No years.
 - Top right counter: 01 / 06.
@@ -177,11 +177,11 @@ Timeline ("the whole road"), not prototyped; build to this description in the sa
 
 Nodes:
 1. 2015–2019 · University of the Pacific · B.Sc. Summary: Started building before graduating. Details: PIES (Pacific Innovation and Entrepreneurship Summit) Award winner; two-time Dean's Honor Roll; co-founded NEO SOUL in 2016.
-2. 2016–2020 · NEO SOUL · Co-founder. Highlight (condensed). Summary: Brought Chinese indie artists to US stages; 19 concerts, US$6.3M valuation.
+2. 2016–2020 · NEO SOUL Entertainment · Co-founder. Highlight (condensed). Summary: Brought Chinese indie artists to US stages; 19 concerts, raised 2 rounds, US$6.3M valuation.
 3. 2021 · CAOTAI Music · Artist Operations Manager. Highlight. Summary: From a Beijing label to SXSW and The New York Times.
-4. 2021–2023 · Schulich School of Business · MBA. Summary: An MBA built around media and the business of art. Details: graduated with distinction (GPA A-); Joyce Zemans Award of Achievement; IMASCO Awards in Art and Administration; Dean's Honour List; Graduate Diploma in Media Management, earned concurrently.
-5. 2022–2023 · Live Nation · Team Lead, Strategy Consultant (MBA consulting engagement). Highlight. Summary: A seven-year roadmap the client adopted.
-6. 2023–2024 · Maple Diversity · Strategic Partnerships Manager. Highlight. Summary: Signed IKEA and Tissot; revenue up 14%.
+4. 2021–2023 · Schulich School of Business, York University · MBA. Summary: An MBA built around media and the business of art. Details: graduated with distinction (GPA A-); Joyce Zemans Award of Achievement; IMASCO Awards in Art and Administration; Dean's Honour List; Graduate Diploma in Media Management, earned concurrently.
+5. 2022–2023 · Live Nation Entertainment · Team Lead, Strategy Consultant (MBA consulting engagement). Highlight. Summary: A seven-year roadmap the client adopted.
+6. 2023–2024 · Maple Diversity Communications · Strategic Partnerships Manager. Highlight. Summary: Signed IKEA and Tissot; revenue up 14%.
 7. 2025 · Complete Purchasing Services (Aramark) · Program Marketing Manager. Highlight. Summary: An automated playbook that halved coordination time.
 8. 2026 · SparkLease · Product Marketing Manager. Highlight. Summary: Turned screen space into a product for carmakers.
 9. 2026 · Next.

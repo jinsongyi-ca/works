@@ -91,7 +91,7 @@
     return { r, span, i, l: seg - i, inside: r.top <= 1 && r.bottom >= innerHeight - 1 };
   }
   /* Beats play in order on their own once a highlight is on screen; no scrolling needed. */
-  const BEAT_AT = [150, 1100, 2050];
+  const BEAT_AT = [150, 550, 950];
   const seen = new Set();
   let timers = [], revealed = -1;
   function reveal(i, instant) {
