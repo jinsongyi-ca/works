@@ -113,6 +113,7 @@
     const engaged = s.r.top <= innerHeight * 0.3 && s.r.bottom >= innerHeight * 0.7;
     if (engaged && revealed !== s.i) { revealed = s.i; reveal(s.i); }
     else if (!engaged && revealed !== -1 && (s.r.top > innerHeight * 0.5 || s.r.bottom < innerHeight * 0.5)) { revealed = -1; timers.forEach(clearTimeout); timers = []; }
+    viewSoon(engaged ? s.i : -1);
     if (!panelOpen) {
       if (s.inside) setHash(ids[s.i]);
       else if (wasInside && ids.includes(location.hash.slice(1))) setHash('');
@@ -432,6 +433,49 @@
   }
   addEventListener('scroll', () => { if (heroVisible && cursorOn) startGlow(); }, { passive: true });
   fineMQ.addEventListener('change', setCursor);
+
+  /* ---------- analytics: one "view-<id>" event per highlight per visit ----------
+     Counted once a highlight has stayed active for a second, so passing through does not count.
+     Guarded: if GoatCounter is blocked or not loaded yet, nothing breaks. */
+  const viewed = new Set(), pendingViews = [];
+  let viewTimer = 0, viewFor = -1;
+  function sendView(id) {
+    const gc = window.goatcounter;
+    if (gc && typeof gc.count === 'function') {
+      try { gc.count({ path: 'view-' + id, title: 'Highlight viewed: ' + id, event: true }); } catch (e) { /* ignore */ }
+    } else pendingViews.push(id);
+  }
+  function viewSoon(i) {
+    if (i === viewFor) return;
+    viewFor = i;
+    clearTimeout(viewTimer);
+    if (i < 0 || viewed.has(i)) return;
+    viewTimer = setTimeout(() => { viewed.add(i); sendView(ids[i]); }, 1000);
+  }
+  addEventListener('load', () => {
+    const flush = () => { if (window.goatcounter && typeof window.goatcounter.count === 'function') pendingViews.splice(0).forEach(sendView); };
+    flush(); setTimeout(flush, 3000);
+  });
+  if ('IntersectionObserver' in window) {
+    const vio = new IntersectionObserver(es => es.forEach(e => {
+      if (pin) return;
+      const i = +e.target.dataset.i;
+      if (e.isIntersecting) viewSoon(i); else if (viewFor === i) viewSoon(-1);
+    }), { threshold: 0.5 });
+    stories.forEach(st => vio.observe(st));
+  }
+
+  /* ---------- small screens: the top bar hides on scroll down, returns on scroll up ---------- */
+  const smallMQ = matchMedia('(max-width: 767px)');
+  let lastY = scrollY;
+  addEventListener('scroll', () => {
+    const y = scrollY;
+    if (!smallMQ.matches || panelOpen) { bar.classList.remove('away'); lastY = y; return; }
+    if (Math.abs(y - lastY) < 6) return;
+    bar.classList.toggle('away', y > lastY && y > bar.offsetHeight && !bar.contains(D.activeElement));
+    lastY = y;
+  }, { passive: true });
+  bar.addEventListener('focusin', () => bar.classList.remove('away'));
 
   /* ---------- start ---------- */
   setCursor();
