@@ -102,10 +102,10 @@ The accent is always a fill (chips, marker band, underline), never a text colour
 - Abilities: Problem solving, Analysis, Execution
 
 **Maple Diversity** · role: STRATEGIC PARTNERSHIPS MANAGER
-- Hook: IKEA knew Canada. It didn't yet know every Canadian.
-- THE GAP: Big brands were missing multicultural Canada, and Maple needed new clients to grow.
-- THE MOVE: I turned NielsenIQ, Vividata and Statistics Canada data into pitches for 11 brands, and automated prospecting so my time went into proposals.
-- THE RESULT: I signed IKEA and Tissot myself. Revenue grew 14% year over year, and a rebuilt vendor pipeline cut localization costs by 25%.
+- Hook: Nearly one in four Canadians was born abroad. Most brands still spoke to one Canada.
+- THE GAP: Brands knew multicultural Canada mattered, but few had the data or the cultural know-how to reach it. Maple had to prove the case to win new clients.
+- THE MOVE: I turned NielsenIQ, Vividata and Statistics Canada data into the case for each brand: who the audience was, where to reach them and what to say. I pitched 11 brands across CPG, automotive, tech and the public sector, and automated prospecting so my time went into proposals.
+- THE RESULT: I signed IKEA and Tissot myself, and won new projects from Aveeno, Listerine, Audi and Panasonic. Revenue grew 14% year over year, and a rebuilt vendor pipeline cut localization costs by 25%.
 - Number: +14% · REVENUE, YEAR OVER YEAR
 - Abilities: Analysis, Strategy, Execution
 
@@ -157,7 +157,7 @@ The accent is always a fill (chips, marker band, underline), never a text colour
 
 Content:
 - **NEO SOUL**: Times Square · #NextNeoSoulArtist ("Our billboard poll on who to bring over next"): `timessquare-1`, `timessquare-2`. Posters: `poster-hyukoh`, `poster-dmob`, `poster-hhh`, `poster-madi`, `poster-sdy`, `poster-sunset`. Venues ("19 concerts across the US"): `mayan`, `wilbur`, `wilbur-stage`, `regency`, `royale`, `chicago`.
-- **Maple Diversity**: IKEA chip ("Signed by Sonny"): `ikea`. Tissot chip ("Signed by Sonny"): `tissot-1`, `tissot-2`. Listerine chip ("New project from an existing client"): `listerine`.
+- **Maple Diversity**: IKEA chip ("Signed by Sonny · Online ordering for complete room sets, plus the promotion plan"): `ikea`. Tissot chip ("Signed by Sonny"): `tissot-1`, `tissot-2`. Listerine chip ("New project from an existing client"): `listerine`.
 - **Live Nation**: The engagement ("Covers only; the full reports stay with the client"), text: "Seven reports across industry trends, business model, organizational structure and execution capability, ending in a seven-year growth roadmap with multiple scenarios." Images `team-1`, `team-2`.
 - **SparkLease**: Search growth: `seo-traffic`, `seo-rankings`. The product ("Screen space, packaged and tiered"): `listing-insert`, `boost`. OEM pitches: `polestar`, `alfa-romeo`, `lotus`, `fiat`, `ford-cn`.
 - **Aramark**: 50th anniversary · Vancouver ("At River Rock Casino Resort: our clients, the brands we represented and a trade show in one room"): `aramark/anniversary-50`. The count line uses "1 piece" (singular). More photos may be added later to `img/aramark/`.
