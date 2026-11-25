@@ -370,33 +370,48 @@
       cfb.append(el);
       return { el, track, head, items, g, a: 0 };
     });
-    if (rows.length) rows[0].a = Math.floor(rows[0].items.length / 2);
+    rows.forEach(x => { x.a = -1; });
   }
+  /* A row opens folded: its pieces fanned in an overlapping stack so a strip of each shows (a = -1).
+     Clicking a piece unfolds the row into Cover Flow with that piece in front. */
   function layoutRow(row) {
-    const st = row.el.querySelector('.cfs'), H = Math.round(st.clientHeight * 0.72), W = st.clientWidth;
+    const st = row.el.querySelector('.cfs'), H = Math.round(st.clientHeight * 0.74), W = st.clientWidth;
     const w = row.g.entries.map(e => Math.round(Math.min(H * Math.min(Math.max(e.ratio, 0.55), 1.9), W * 0.86)));
-    const a = row.a, isFlat = flat();
-    const x = new Array(w.length).fill(0);
-    if (isFlat) {
-      for (let k = a + 1; k < w.length; k++) x[k] = x[k - 1] + w[k - 1] / 2 + 16 + w[k] / 2;
+    const a = row.a, isFlat = flat(), folded = a < 0, n = w.length;
+    const x = new Array(n).fill(0);
+    if (folded) {
+      // fan: each piece shows about 30% (3D) or 45% (flat) of itself; the whole stack is centred and never wider than the row
+      const share = isFlat ? 0.45 : 0.3;
+      for (let k = 1; k < n; k++) x[k] = x[k - 1] + Math.max(w[k - 1], w[k]) * share;
+      const span = x[n - 1] - x[0] + w[n - 1] / 2 + w[0] / 2, room = W * 0.9;
+      const squeeze = span > room ? (room - w[0] / 2 - w[n - 1] / 2) / Math.max(1, x[n - 1]) : 1;
+      for (let k = 0; k < n; k++) x[k] *= Math.min(1, squeeze);
+      const mid = (x[0] - w[0] / 2 + x[n - 1] + w[n - 1] / 2) / 2;
+      for (let k = 0; k < n; k++) x[k] -= mid;
+    } else if (isFlat) {
+      for (let k = a + 1; k < n; k++) x[k] = x[k - 1] + w[k - 1] / 2 + 16 + w[k] / 2;
       for (let k = a - 1; k >= 0; k--) x[k] = x[k + 1] - w[k + 1] / 2 - 16 - w[k] / 2;
     } else {
-      for (let k = a + 1; k < w.length; k++) x[k] = k === a + 1 ? w[a] / 2 + w[k] * 0.3 : x[k - 1] + w[k] * 0.24;
+      for (let k = a + 1; k < n; k++) x[k] = k === a + 1 ? w[a] / 2 + w[k] * 0.3 : x[k - 1] + w[k] * 0.24;
       for (let k = a - 1; k >= 0; k--) x[k] = k === a - 1 ? -(w[a] / 2 + w[k] * 0.3) : x[k + 1] - w[k] * 0.24;
     }
+    row.el.classList.toggle('folded', folded);
     row.items.forEach((b, k) => {
       const d = k - a, ad = Math.abs(d);
       b.style.width = w[k] + 'px'; b.style.height = H + 'px'; b.style.marginLeft = -w[k] / 2 + 'px';
-      b.style.transform = isFlat || d === 0 ? `translateX(${x[k]}px)` : `translateX(${x[k]}px) translateZ(-160px) rotateY(${d < 0 ? 55 : -55}deg)`;
-      b.style.zIndex = 100 - ad;
-      b.classList.toggle('act', d === 0);
-      b.classList.toggle('far', !isFlat && ad > 7);
-      b.tabIndex = d === 0 ? 0 : -1;
+      if (folded) {
+        b.style.transform = isFlat ? `translateX(${x[k]}px)` : `translateX(${x[k]}px) translateZ(-80px) rotateY(-28deg)`;
+        b.style.zIndex = k + 1;
+      } else {
+        b.style.transform = isFlat || d === 0 ? `translateX(${x[k]}px)` : `translateX(${x[k]}px) translateZ(-160px) rotateY(${d < 0 ? 55 : -55}deg)`;
+        b.style.zIndex = 100 - ad;
+      }
+      b.classList.toggle('act', !folded && d === 0);
+      b.classList.toggle('far', !folded && !isFlat && ad > 7);
+      b.tabIndex = (folded ? k === 0 : d === 0) ? 0 : -1;
     });
-    // centre the items vertically in the row (room below for the reflection); the title sits just above them
-    const top = Math.max(0, Math.round((st.clientHeight - H * 1.28) / 2));
-    row.track.style.top = top + 'px';
-    row.head.style.top = Math.max(0, top + 40 - 44) + 'px';
+    // centre the pieces in their area, leaving room below for the reflection
+    row.track.style.top = Math.max(0, Math.round((st.clientHeight - H * 1.22) / 2)) + 'px';
   }
   function layoutAll() { rows.forEach(layoutRow); }
   function setActive(r, k, focus) {
@@ -406,13 +421,13 @@
     layoutRow(row);
     if (focus) row.items[row.a].focus({ preventScroll: true });
   }
-  function rowStep(r, d) { if (rows[r]) setActive(r, rows[r].a + d, true); }
+  function rowStep(r, d) { if (rows[r]) setActive(r, rows[r].a < 0 ? 0 : rows[r].a + d, true); }
   function markRow() { rows.forEach((x, r) => x.el.classList.toggle('here', r === curRow)); }
   function goRow(d) {
     curRow = Math.max(0, Math.min(rows.length - 1, curRow + d));
     markRow();
     cfb.scrollTo({ top: rows[curRow].el.offsetTop, behavior: behavior() });
-    rows[curRow].items[rows[curRow].a].focus({ preventScroll: true });
+    rows[curRow].items[Math.max(0, rows[curRow].a)].focus({ preventScroll: true });
   }
   function openPanel(i, opener) {
     if (!$('ev-' + ids[i])) return;
@@ -427,7 +442,7 @@
     markRow();
     requestAnimationFrame(() => { layoutAll(); cf.classList.add('in'); });
     cfb.scrollTop = 0;
-    setTimeout(() => { const r = rows[0]; if (r) r.items[r.a].focus({ preventScroll: true }); }, 30);
+    setTimeout(() => { const r = rows[0]; if (r) r.items[Math.max(0, r.a)].focus({ preventScroll: true }); }, 30);
     setHash(ids[i] + '/evidence');
     gcEvent('work-' + ids[i]);
     updateBar();

@@ -360,14 +360,16 @@ h1 sup{position:absolute;right:0;left:auto;top:-.2em;font-size:.12em;font-weight
 .cfx:focus-visible,.cfzx:focus-visible,.cfzp:focus-visible,.cfzn:focus-visible{outline:2px solid #F2F1EE;outline-offset:2px}
 /* rows stack vertically and centre; more than fit scroll and snap row by row */
 .cfb{position:absolute;inset:84px 0 0;overflow-y:auto;overscroll-behavior:contain;scroll-snap-type:y mandatory;display:flex;flex-direction:column;transition:opacity .3s var(--ease)}
-.cfr{position:relative;flex:none;height:100%;scroll-snap-align:start;scroll-snap-stop:always;
-  transform:scale(.8);opacity:.2;transition:transform .7s cubic-bezier(.2,.8,.2,1),opacity .7s cubic-bezier(.2,.8,.2,1)}
+.cfb::after{content:"";flex:none;height:11vh}
+/* each row is a little shorter than the viewer, so the next row's title and the tops of its pieces peek in below */
+.cfr{position:relative;flex:none;height:calc(100% - 11vh);display:flex;flex-direction:column;scroll-snap-align:start;scroll-snap-stop:always;
+  transform:scale(.92);transform-origin:50% 0;opacity:.32;transition:transform .7s cubic-bezier(.2,.8,.2,1),opacity .7s cubic-bezier(.2,.8,.2,1)}
 .cfr.here{transform:none;opacity:1}
-.cfl{position:absolute;left:var(--m);right:var(--m);top:0;display:flex;align-items:center;justify-content:center;text-align:center;gap:12px;flex-wrap:wrap;z-index:2}
+.cfl{position:relative;flex:none;margin:0 var(--m);padding:2vh 0 0;display:flex;align-items:center;justify-content:center;text-align:center;gap:8px 12px;flex-wrap:wrap;z-index:2}
 .cfl .chip{margin:0;padding:4px 9px 3px;border-radius:2px}
 .cflt{color:rgba(242,241,238,.75)}
 .cfln{font-size:14px;color:rgba(242,241,238,.55)}
-.cfs{position:absolute;left:0;right:0;top:40px;bottom:0;perspective:1200px;overflow:hidden;touch-action:pan-y}
+.cfs{position:relative;flex:1;min-height:0;margin-top:14px;perspective:1200px;overflow-x:clip;overflow-y:visible;touch-action:pan-y}
 .cft{position:absolute;left:50%;top:0;transform-style:preserve-3d}
 .cfi{all:unset;box-sizing:border-box;position:absolute;left:0;top:0;cursor:pointer;transform-style:preserve-3d;
   transition:transform .45s cubic-bezier(.2,.8,.2,1),opacity .3s var(--ease)}
@@ -376,6 +378,8 @@ h1 sup{position:absolute;right:0;left:auto;top:-.2em;font-size:.12em;font-weight
   -webkit-box-reflect:below 6px linear-gradient(transparent 70%,rgba(255,255,255,.18))}
 .cfi.act .cfm{filter:none}
 .cfi:not(.act):hover .cfm{transform:translateY(-10px);filter:brightness(.8)}
+.cfr.folded .cfm{filter:brightness(.78)}
+.cfr.folded .cfi:hover .cfm{transform:translateY(-14px);filter:none}
 .cfi:focus{outline:none}
 .kbd .cfi:focus-visible .cfm{outline:2px solid #F2F1EE;outline-offset:4px}
 .cfm img{width:100%;height:100%;object-fit:contain;display:block;pointer-events:none}
