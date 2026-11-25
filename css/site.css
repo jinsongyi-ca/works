@@ -80,12 +80,12 @@ h1 sup{position:absolute;right:0;left:auto;top:-.2em;font-size:.12em;font-weight
 @media (min-width:768px){.who{white-space:nowrap}}
 /* (Song-yi) appears when the pointer is over the name; always shown on touch and under reduced motion */
 @media (hover:hover) and (prefers-reduced-motion:no-preference){
-  h1 sup{opacity:0;transition:opacity .3s var(--ease)}
-  h1:hover sup{opacity:1}
+  h1 sup{color:#DEDCD6;transition:color .3s var(--ease)}
+  h1:hover sup{color:var(--champ-deep)}
 }
 .proof{position:absolute;left:var(--m);right:var(--m);bottom:40px;border-top:1px solid var(--line);padding-top:12px;display:flex;align-items:center;gap:40px;z-index:2}
 /* fixed label at the left; only the logos scroll, sliding out from behind it */
-.plabel{flex:none;color:var(--muted);white-space:nowrap}
+.plabel{flex:none;color:var(--muted);white-space:nowrap;line-height:20px}
 .mq{flex:1;min-width:0;overflow:hidden;padding:10px 0;
   -webkit-mask-image:linear-gradient(to right,transparent,#000 48px,#000 calc(100% - 48px),transparent);mask-image:linear-gradient(to right,transparent,#000 48px,#000 calc(100% - 48px),transparent)}
 .mqt{display:flex;width:max-content;animation:mq 70s linear infinite}
@@ -201,7 +201,8 @@ h1 sup{position:absolute;right:0;left:auto;top:-.2em;font-size:.12em;font-weight
 .pin .wall{display:block;position:absolute;top:0;right:0;bottom:0;width:max(380px,calc(100vw - 1030px));z-index:0;pointer-events:none;overflow:hidden}
 .wall img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:center top;opacity:0;transform:scale(1);
   transition:opacity .6s var(--ease),transform 0s linear .6s}
-.wall img.on{opacity:1;transform:scale(1.06);transition:opacity .6s var(--ease),transform 10s cubic-bezier(0,0,.2,1)}
+.wall img.on{opacity:1;transition:opacity .6s var(--ease);animation:drift 16s ease-in-out infinite alternate}
+@keyframes drift{0%{transform:scale(1.03) translate(0,0)}50%{transform:scale(1.07) translate(-1.2%,.8%)}100%{transform:scale(1.05) translate(1%,-1%)}}
 /* left edge: field colour to transparent over 22%; lower 40%: field colour (90% at the bottom) behind the number;
    dark fields add a 25% field-colour veil over the whole image */
 .pin .wall::after{content:"";position:absolute;inset:0;z-index:1;transition:background .6s var(--ease);
