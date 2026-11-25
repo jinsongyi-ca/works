@@ -373,7 +373,7 @@
     if (rows.length) rows[0].a = Math.floor(rows[0].items.length / 2);
   }
   function layoutRow(row) {
-    const st = row.el.querySelector('.cfs'), H = Math.round(st.clientHeight * 0.76), W = st.clientWidth;
+    const st = row.el.querySelector('.cfs'), H = Math.round(st.clientHeight * 0.72), W = st.clientWidth;
     const w = row.g.entries.map(e => Math.round(Math.min(H * Math.min(Math.max(e.ratio, 0.55), 1.9), W * 0.86)));
     const a = row.a, isFlat = flat();
     const x = new Array(w.length).fill(0);
@@ -393,7 +393,10 @@
       b.classList.toggle('far', !isFlat && ad > 7);
       b.tabIndex = d === 0 ? 0 : -1;
     });
-    row.head.style.left = Math.max(0, W / 2 - w[a] / 2) + 'px';
+    // centre the items vertically in the row (room below for the reflection); the title sits just above them
+    const top = Math.max(0, Math.round((st.clientHeight - H * 1.28) / 2));
+    row.track.style.top = top + 'px';
+    row.head.style.top = Math.max(0, top + 40 - 44) + 'px';
   }
   function layoutAll() { rows.forEach(layoutRow); }
   function setActive(r, k, focus) {
@@ -404,9 +407,11 @@
     if (focus) row.items[row.a].focus({ preventScroll: true });
   }
   function rowStep(r, d) { if (rows[r]) setActive(r, rows[r].a + d, true); }
+  function markRow() { rows.forEach((x, r) => x.el.classList.toggle('here', r === curRow)); }
   function goRow(d) {
     curRow = Math.max(0, Math.min(rows.length - 1, curRow + d));
-    rows[curRow].el.scrollIntoView({ block: 'center', behavior: behavior() });
+    markRow();
+    cfb.scrollTo({ top: rows[curRow].el.offsetTop, behavior: behavior() });
     rows[curRow].items[rows[curRow].a].focus({ preventScroll: true });
   }
   function openPanel(i, opener) {
@@ -419,6 +424,7 @@
     cf.hidden = false;
     R.classList.add('locked');
     panelOpen = true;
+    markRow();
     requestAnimationFrame(() => { layoutAll(); cf.classList.add('in'); });
     cfb.scrollTop = 0;
     setTimeout(() => { const r = rows[0]; if (r) r.items[r.a].focus({ preventScroll: true }); }, 30);
@@ -472,8 +478,20 @@
   cfb.addEventListener('click', e => { if (!dragMoved && !e.target.closest('.cfi,.cfl')) closePanel(); });
   // horizontal wheel or trackpad swipe moves the row under the pointer
   let wheelAcc = 0, wheelAt = 0;
+  // vertical wheel: one gesture glides to the next or previous row; momentum from the same gesture is ignored
+  let vAt = -1e9, vLast = 0, vMag = 0;
   cfb.addEventListener('wheel', e => {
-    if (Math.abs(e.deltaX) <= Math.abs(e.deltaY)) return;
+    if (Math.abs(e.deltaY) > Math.abs(e.deltaX)) {
+      e.preventDefault();
+      if (zoomOpen || Math.abs(e.deltaY) < 2) return;
+      const now = performance.now(), quiet = now - vLast, mag = Math.abs(e.deltaMode ? e.deltaY * 33 : e.deltaY), prev = vMag;
+      vLast = now; vMag = mag;
+      const sameGesture = now - vAt < 750 || (quiet < 260 && !(mag >= 15 && mag > prev * 1.6) && now - vAt < 8000);
+      if (sameGesture) return;
+      vAt = now;
+      goRow(e.deltaY > 0 ? 1 : -1);
+      return;
+    }
     e.preventDefault();
     const rowEl = e.target.closest('.cfr'), r = rows.findIndex(x => x.el === rowEl);
     if (r < 0) return;
@@ -498,7 +516,7 @@
     const mid = cfb.getBoundingClientRect().top + cfb.clientHeight / 2;
     let best = 0, bd = 1e9;
     rows.forEach((x, r) => { const b = x.el.getBoundingClientRect(), d = Math.abs(b.top + b.height / 2 - mid); if (d < bd) { bd = d; best = r; } });
-    curRow = best;
+    if (best !== curRow && performance.now() - vAt > 900) { curRow = best; markRow(); }
   }, { passive: true });
   addEventListener('resize', () => { if (panelOpen) layoutAll(); });
   D.querySelectorAll('.ev').forEach(b => b.addEventListener('click', () => openPanel(+b.dataset.i, b)));

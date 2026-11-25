@@ -159,6 +159,11 @@ h1 sup{position:absolute;right:0;left:auto;top:-.2em;font-size:.12em;font-weight
 .ev:hover .go .ar,.ev:focus-visible .go .ar{transform:translateX(5px)}
 .ev .ct{font-size:14px;color:var(--soft)}
 .ev:hover{border-color:var(--acc)}
+/* the work card sits above the title block and breathes gently; hover or focus enlarges it and stops the breathing */
+.ev{width:max-content;max-width:100%;margin:0 0 30px;transform-origin:left center;animation:breathe 3.2s ease-in-out infinite;
+  transition:transform .25s var(--ease),border-color .3s,background-color .3s}
+.ev:hover,.ev:focus-visible{animation:none;transform:scale(1.05)}
+@keyframes breathe{0%,100%{transform:scale(1);box-shadow:0 0 0 0 color-mix(in srgb,var(--acc) 0%,transparent)}50%{transform:scale(1.025);box-shadow:0 0 0 7px color-mix(in srgb,var(--acc) 22%,transparent)}}
 .num{align-self:end;padding-bottom:62px;transition:opacity .6s var(--ease)}
 .num b{display:inline-block;font:400 clamp(72px,7.2vw,116px)/.9 var(--serif);letter-spacing:-.02em;white-space:nowrap;
   background:linear-gradient(transparent 62%,var(--acc) 62%,var(--acc) 92%,transparent 92%)}
@@ -218,12 +223,10 @@ h1 sup{position:absolute;right:0;left:auto;top:-.2em;font-size:.12em;font-weight
     color-mix(in srgb,var(--bg) 25%,transparent)}
 .pin .stage.light .wall::after,.pin .stage.logo .wall::after{background:linear-gradient(to right,var(--bg),transparent 22%),linear-gradient(to top,color-mix(in srgb,var(--bg) 90%,transparent),color-mix(in srgb,var(--bg) 84%,transparent) 20%,color-mix(in srgb,var(--bg) 55%,transparent) 30%,transparent 40%)}
 .pin .stage.light .wall{border-left:1px solid var(--line)}
-.pin .ev{position:absolute;top:108px;right:calc(32px - var(--m));margin:0;z-index:5;max-width:calc(max(380px,100vw - 1030px) - 64px);
-  background:color-mix(in srgb,var(--bg) 84%,transparent);-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px)}
 .pin .ev .tx{min-width:0}
 /* the story column passes clicks through to the image panel; only its own content takes them */
 .pin .body,.pin .story{pointer-events:none}
-.pin .story.on .col,.pin .story.on .ev{pointer-events:auto}
+.pin .story.on .col{pointer-events:auto}
 .pin .num{opacity:0}
 .pin .num.on{opacity:1}
 .pin .stage>.abil{display:flex;position:absolute;left:400px;bottom:44px;z-index:2}
@@ -243,7 +246,6 @@ h1 sup{position:absolute;right:0;left:auto;top:-.2em;font-size:.12em;font-weight
   .pin .body,.pin .stage>.abil{left:330px}
   .pin .story{grid-template-columns:minmax(0,1fr) minmax(270px,300px);column-gap:44px}
   .pin .wall{width:max(340px,calc(100vw - 890px))}
-  .pin .ev{max-width:calc(max(340px,100vw - 890px) - 64px)}
   .pin .num b{font-size:clamp(64px,6.4vw,92px)}
 }
 /* 900px tall desktops: trim spacing only, type stays at full size */
@@ -358,10 +360,10 @@ h1 sup{position:absolute;right:0;left:auto;top:-.2em;font-size:.12em;font-weight
 .cfx:focus-visible,.cfzx:focus-visible,.cfzp:focus-visible,.cfzn:focus-visible{outline:2px solid #F2F1EE;outline-offset:2px}
 /* rows stack vertically and centre; more than fit scroll and snap row by row */
 .cfb{position:absolute;inset:84px 0 0;overflow-y:auto;overscroll-behavior:contain;scroll-snap-type:y mandatory;display:flex;flex-direction:column;transition:opacity .3s var(--ease)}
-.cfr{position:relative;flex:none;height:min(34vh,calc((100vh - 110px) / 3));min-height:210px;scroll-snap-align:center}
-.cfr:first-child{margin-top:auto}
-.cfr:last-child{margin-bottom:auto;padding-bottom:4vh}
-.cfl{position:absolute;top:0;display:flex;align-items:center;gap:12px;flex-wrap:wrap;max-width:calc(100% - 2 * var(--m));transition:left .45s cubic-bezier(.2,.8,.2,1);z-index:2}
+.cfr{position:relative;flex:none;height:100%;scroll-snap-align:start;scroll-snap-stop:always;
+  transform:scale(.8);opacity:.2;transition:transform .7s cubic-bezier(.2,.8,.2,1),opacity .7s cubic-bezier(.2,.8,.2,1)}
+.cfr.here{transform:none;opacity:1}
+.cfl{position:absolute;left:var(--m);right:var(--m);top:0;display:flex;align-items:center;justify-content:center;text-align:center;gap:12px;flex-wrap:wrap;z-index:2}
 .cfl .chip{margin:0;padding:4px 9px 3px;border-radius:2px}
 .cflt{color:rgba(242,241,238,.75)}
 .cfln{font-size:14px;color:rgba(242,241,238,.55)}
@@ -398,7 +400,6 @@ h1 sup{position:absolute;right:0;left:auto;top:-.2em;font-size:.12em;font-weight
 .cfzx{position:absolute;top:28px;right:var(--m)}
 @keyframes zin{from{opacity:0;transform:scale(.9)}}
 @media (max-width:767px){
-  .cfr{height:calc(100svh - 110px)}
   .cfh{padding:18px var(--m)}
   .cfb{top:64px}
 }
