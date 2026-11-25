@@ -41,11 +41,11 @@
     {
       "id": "aramark",
       "name": "Aramark",
-      "field": "#EB002A",
+      "field": "#2F3A41",
       "text": "#FFFFFF",
-      "soft": "rgba(255,255,255,.75)",
-      "accent": "#FFFFFF",
-      "chipText": "#EB002A"
+      "soft": "rgba(255,255,255,.7)",
+      "accent": "#E7212E",
+      "chipText": "#FFFFFF"
     },
     {
       "id": "caotai",

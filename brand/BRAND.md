@@ -83,12 +83,12 @@ Three layers, each with a clear job.
 | Maple Diversity | black `#09090B` | white text, accent orange `#FF6B2C` | maplediversity.ca |
 | Live Nation | red `#E21836` | white text, accent black `#000000` | livenation.com |
 | SparkLease | white `#FAFAFA` | ink `#1F1F1F` text, accent amber `#FABB00` as chips and marker | sparklease.com |
-| Aramark | red `#EB002A` | white text, accent white (chips carry red text) | aramark.com |
+| Aramark | slate `#2F3A41` | white text, accent red `#E7212E` (chips carry white text) | aramark.com |
 | CAOTAI Music | black `#000000` | white text, accent `champagne` `#C3A986` | CAOTAI is black and white only, so the accent is Sonny's own |
 
 **Naming a subsidiary.** The rail uses the name people recognise (Aramark). The role line and the timeline use the legal employer, so it matches the résumé and any background check: "Complete Purchasing Services, an Aramark company" on the highlight, "Complete Purchasing Services (Aramark)" on the timeline. Never a dash between the two names.
 
-Order: NEO SOUL, Maple Diversity, Live Nation, SparkLease, Aramark, CAOTAI Music. Live Nation and Aramark are both red fields, so they are kept apart and their accents differ (black chips vs white chips).
+Order: NEO SOUL, Maple Diversity, Live Nation, SparkLease, Aramark, CAOTAI Music. Live Nation (red field) and Aramark (slate field with red accent) are kept apart in the order.
 
 **The accent rule (one treatment for every highlight).** The accent is always a fill, never a text colour:
 - Beat labels (THE GAP, THE MOVE, THE RESULT) sit on a small accent chip, with dark or white text, whichever reads.

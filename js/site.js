@@ -13,7 +13,7 @@
   const railBtns = [...$('rail').querySelectorAll('button')];
   const tags = [...$('abil').children];
   const countEl = $('count');
-  const wallImgs = [...$('wall').querySelectorAll('img')];
+  const wall = $('wall'), wallItems = [...wall.children];
   const PAPER = { fg: '#0B0C0E', mute: '#5E6268' };
   const theme = stories.map(s => {
     const g = k => s.style.getPropertyValue(k).trim();
@@ -29,7 +29,7 @@
     if (i < 0 || i >= N || loaded.has(i)) return;
     loaded.add(i);
     stories[i].querySelectorAll('img[data-src]').forEach(im => { im.src = im.dataset.src; im.removeAttribute('data-src'); });
-    if (pin) { const w = wallImgs[i]; if (w && w.dataset.src) { w.src = w.dataset.src; w.removeAttribute('data-src'); } }
+    if (pin) { const w = wallItems[i] && wallItems[i].querySelector('img[data-src]'); if (w) { w.src = w.dataset.src; w.removeAttribute('data-src'); } }
   }
   if ('IntersectionObserver' in window) {
     const io = new IntersectionObserver(es => es.forEach(e => {
@@ -87,7 +87,8 @@
       if (k === i) b.setAttribute('aria-current', 'true'); else b.removeAttribute('aria-current');
     });
     countEl.textContent = pad(i + 1) + ' / ' + pad(N);
-    wallImgs.forEach((im, k) => im.classList.toggle('on', k === i));
+    wallItems.forEach((el, k) => el.classList.toggle('on', k === i));
+    stage.classList.toggle('logo', wallItems[i].classList.contains('logo'));
   }
   /* Each highlight has three steps (GAP, MOVE, RESULT); one scroll step advances one beat. */
   const B = 3, STEPS = N * B;
@@ -168,7 +169,7 @@
     return false;
   }
   function onInput(e, dir, mag) {
-    if (!pin || panelOpen || !lb.hidden) return;
+    if (!pin || panelOpen) return;
     const now = performance.now(), quiet = now - lastInput, prevMag = lastMag;
     lastInput = now; lastMag = mag;
     if (busy(now, quiet, mag, prevMag)) { e.preventDefault(); return; }
@@ -183,7 +184,7 @@
   let touchY = null, touchDone = false;
   addEventListener('touchstart', e => { touchY = e.touches[0].clientY; touchDone = false; }, { passive: true });
   addEventListener('touchmove', e => {
-    if (touchY === null || !pin || panelOpen || !lb.hidden) return;
+    if (touchY === null || !pin || panelOpen) return;
     const s = hlState();
     if (!(s.r.top < innerHeight * 0.9 && s.r.bottom > innerHeight * 0.1)) return;
     const dy = touchY - e.touches[0].clientY;
@@ -214,6 +215,8 @@
     }
     const s = R.style;
     s.setProperty('--bar-fg', fg); s.setProperty('--bar-mute', mute); s.setProperty('--bar-bg', bg);
+    bar.classList.toggle('onstage', onStage);
+    if (onStage) s.setProperty('--bar-fill', t.bg);
     s.setProperty('--cc', panelOpen ? '#A88B5F' : cc);
   }
 
@@ -300,95 +303,230 @@
   /* ---------- focus trap ---------- */
   const FOCUSABLE = 'a[href],button:not([disabled]),iframe,[tabindex]:not([tabindex="-1"])';
   function trap(e, root) {
-    const f = [...root.querySelectorAll(FOCUSABLE)].filter(el => el.offsetParent !== null || el === D.activeElement);
+    const f = [...root.querySelectorAll(FOCUSABLE)].filter(el => el.tabIndex >= 0 && (el.offsetParent !== null || el === D.activeElement));
     if (!f.length) return;
     const first = f[0], last = f[f.length - 1];
     if (e.shiftKey && (D.activeElement === first || !root.contains(D.activeElement))) { e.preventDefault(); last.focus(); }
     else if (!e.shiftKey && (D.activeElement === last || !root.contains(D.activeElement))) { e.preventDefault(); first.focus(); }
   }
 
-  /* ---------- work panel ---------- */
-  const panel = $('panel'), pb = $('pb'), pt = $('pt'), scrim = $('scrim');
-  let panelOpen = false, panelFor = -1, panelReturn = null, gal = [], clearTimer = 0;
-  function openPanel(i, opener) {
+  /* ---------- the work: a full-screen Cover Flow viewer ----------
+     Rows are built from the hidden .evd blocks in the HTML (one row per work group). The active item faces front;
+     neighbours turn 55deg toward it and sit back. Click a side item to bring it front; click the front item to expand it. */
+  const cf = $('cf'), cfb = $('cfb'), cft = $('cft'), cfz = $('cfz'), cfzi = $('cfzi'), cfzc = $('cfzc');
+  const flatMQ = matchMedia('(max-width: 767px)');
+  let panelOpen = false, zoomOpen = false, panelFor = -1, panelReturn = null, rows = [], curRow = 0, zoom = null, cfTimer = 0;
+  const flat = () => reduce || flatMQ.matches;
+  function gcEvent(path) {
+    const gc = window.goatcounter;
+    if (gc && typeof gc.count === 'function') { try { gc.count({ path, event: true }); } catch (e) { /* ignore */ } }
+  }
+  function readGroup(item) {
+    const chip = item.querySelector('.band .chip'), lbl = item.querySelector('.band .lbl'), note = item.querySelector('.band .note'), summ = item.querySelector('.summ');
+    const label = (chip || lbl).textContent.trim();
+    const entries = [];
+    item.querySelectorAll('.spot iframe').forEach(f => {
+      const title = f.title.replace(/^Spotify:\s*/, '');
+      entries.push({ type: 'spot', src: f.dataset.src || f.src, title, ratio: 1 });
+    });
+    item.querySelectorAll('.shot img').forEach(im => entries.push({ type: 'img', src: im.dataset.src || im.getAttribute('src'), alt: im.alt, ratio: (+im.getAttribute('width') || 4) / (+im.getAttribute('height') || 3) }));
+    const press = item.querySelector('a.press');
+    if (press) entries.push({ type: 'press', href: press.href, outlet: press.querySelector('b').textContent, year: (press.querySelector('span').textContent.match(/\d{4}/) || [''])[0], ratio: 0.8 });
+    return { chip, label, note: [note && note.textContent.trim(), summ && summ.textContent.trim()].filter(Boolean).join('. '), entries };
+  }
+  function tileHTML(e, big) {
+    if (e.type === 'spot') return `<span class="tile spot"><span class="caps">Release</span><b>${e.title}</b><span class="caps">Spotify <span class="ar">↗</span></span></span>`;
+    if (e.type === 'press') return big
+      ? `<a class="tile press" href="${e.href}" target="_blank" rel="noopener"><b>${e.outlet}</b><span class="caps">${e.year} · Read <span class="ar">↗</span></span></a>`
+      : `<span class="tile press"><b>${e.outlet}</b><span class="caps">${e.year} · Read <span class="ar">↗</span></span></span>`;
+    return `<img src="${e.src}" alt="${e.alt.replace(/"/g, '&quot;')}" draggable="false">`;
+  }
+  function buildRows(i) {
     const src = $('ev-' + ids[i]);
-    if (!src) return;
-    clearTimeout(clearTimer);
+    cfb.innerHTML = '';
+    rows = [...src.querySelectorAll(':scope > .item')].map((item, r) => {
+      const g = readGroup(item);
+      const el = D.createElement('section');
+      el.className = 'cfr';
+      el.setAttribute('aria-label', g.label);
+      el.innerHTML = `<div class="cfl"></div><div class="cfs"><div class="cft"></div></div>`;
+      const head = el.querySelector('.cfl');
+      if (g.chip) head.append(g.chip.cloneNode(true)); else head.insertAdjacentHTML('beforeend', `<span class="caps cflt">${g.label}</span>`);
+      if (g.note) head.insertAdjacentHTML('beforeend', `<span class="cfln">${g.note}</span>`);
+      const track = el.querySelector('.cft');
+      const items = g.entries.map((e, k) => {
+        const b = D.createElement('button');
+        b.type = 'button'; b.className = 'cfi';
+        b.setAttribute('aria-label', `${g.label}, ${k + 1} of ${g.entries.length}`);
+        b.innerHTML = `<span class="cfm">${tileHTML(e, false)}</span>`;
+        b.addEventListener('click', ev => {
+          if (dragMoved) { ev.preventDefault(); return; }
+          curRow = r;
+          if (k === rows[r].a) openZoom(r, k); else setActive(r, k);
+        });
+        track.append(b);
+        return b;
+      });
+      cfb.append(el);
+      return { el, track, head, items, g, a: 0 };
+    });
+    if (rows.length) rows[0].a = Math.floor(rows[0].items.length / 2);
+  }
+  function layoutRow(row) {
+    const st = row.el.querySelector('.cfs'), H = Math.round(st.clientHeight * 0.76), W = st.clientWidth;
+    const w = row.g.entries.map(e => Math.round(Math.min(H * Math.min(Math.max(e.ratio, 0.55), 1.9), W * 0.86)));
+    const a = row.a, isFlat = flat();
+    const x = new Array(w.length).fill(0);
+    if (isFlat) {
+      for (let k = a + 1; k < w.length; k++) x[k] = x[k - 1] + w[k - 1] / 2 + 16 + w[k] / 2;
+      for (let k = a - 1; k >= 0; k--) x[k] = x[k + 1] - w[k + 1] / 2 - 16 - w[k] / 2;
+    } else {
+      for (let k = a + 1; k < w.length; k++) x[k] = k === a + 1 ? w[a] / 2 + w[k] * 0.3 : x[k - 1] + w[k] * 0.24;
+      for (let k = a - 1; k >= 0; k--) x[k] = k === a - 1 ? -(w[a] / 2 + w[k] * 0.3) : x[k + 1] - w[k] * 0.24;
+    }
+    row.items.forEach((b, k) => {
+      const d = k - a, ad = Math.abs(d);
+      b.style.width = w[k] + 'px'; b.style.height = H + 'px'; b.style.marginLeft = -w[k] / 2 + 'px';
+      b.style.transform = isFlat || d === 0 ? `translateX(${x[k]}px)` : `translateX(${x[k]}px) translateZ(-160px) rotateY(${d < 0 ? 55 : -55}deg)`;
+      b.style.zIndex = 100 - ad;
+      b.classList.toggle('act', d === 0);
+      b.classList.toggle('far', !isFlat && ad > 7);
+      b.tabIndex = d === 0 ? 0 : -1;
+    });
+    row.head.style.left = Math.max(0, W / 2 - w[a] / 2) + 'px';
+  }
+  function layoutAll() { rows.forEach(layoutRow); }
+  function setActive(r, k, focus) {
+    const row = rows[r];
+    if (!row) return;
+    row.a = Math.max(0, Math.min(row.items.length - 1, k));
+    layoutRow(row);
+    if (focus) row.items[row.a].focus({ preventScroll: true });
+  }
+  function rowStep(r, d) { if (rows[r]) setActive(r, rows[r].a + d, true); }
+  function goRow(d) {
+    curRow = Math.max(0, Math.min(rows.length - 1, curRow + d));
+    rows[curRow].el.scrollIntoView({ block: 'center', behavior: behavior() });
+    rows[curRow].items[rows[curRow].a].focus({ preventScroll: true });
+  }
+  function openPanel(i, opener) {
+    if (!$('ev-' + ids[i])) return;
+    clearTimeout(cfTimer);
     panelReturn = opener || D.activeElement;
-    panelFor = i;
-    pt.textContent = src.dataset.name;
-    pb.innerHTML = '';
-    const c = src.cloneNode(true);
-    c.removeAttribute('id'); c.hidden = false;
-    c.querySelectorAll('[data-src]').forEach(el => { el.src = el.dataset.src; el.removeAttribute('data-src'); });
-    pb.append(c);
-    gal = [...pb.querySelectorAll('.shot')];
-    gal.forEach((b, k) => b.addEventListener('click', () => openLb(k)));
-    panel.inert = false;
-    D.body.classList.add('open');
+    panelFor = i; curRow = 0;
+    cft.textContent = $('ev-' + ids[i]).dataset.name;
+    buildRows(i);
+    cf.hidden = false;
     R.classList.add('locked');
     panelOpen = true;
-    panel.scrollTop = 0;
-    $('px').focus({ preventScroll: true });
+    requestAnimationFrame(() => { layoutAll(); cf.classList.add('in'); });
+    cfb.scrollTop = 0;
+    setTimeout(() => { const r = rows[0]; if (r) r.items[r.a].focus({ preventScroll: true }); }, 30);
     setHash(ids[i] + '/evidence');
+    gcEvent('work-' + ids[i]);
     updateBar();
   }
   function closePanel() {
     if (!panelOpen) return;
+    if (zoomOpen) closeZoom(true);
     panelOpen = false;
-    D.body.classList.remove('open');
+    cf.classList.remove('in');
     R.classList.remove('locked');
-    panel.inert = true;
-    clearTimer = setTimeout(() => { if (!panelOpen) pb.innerHTML = ''; }, 500);
+    cfTimer = setTimeout(() => { if (!panelOpen) { cf.hidden = true; cfb.innerHTML = ''; rows = []; } }, reduce ? 0 : 360);
     const s = hlState();
     setHash(pin && s.inside ? ids[s.i] : '');
     if (panelReturn && panelReturn.focus) panelReturn.focus({ preventScroll: true });
     updateBar();
   }
+  function showZoom() {
+    const row = rows[zoom.r], e = row.g.entries[zoom.k];
+    cfzi.innerHTML = tileHTML(e, true) + (e.type === 'spot'
+      ? `<iframe src="${e.src}" loading="lazy" allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" title="Spotify: ${e.title}"></iframe>` : '');
+    cfzi.className = 'cfzi ' + e.type;
+    cfzc.textContent = `${row.g.label} · ${zoom.k + 1} / ${row.items.length}`;
+  }
+  function openZoom(r, k) {
+    zoom = { r, k }; zoomOpen = true;
+    showZoom();
+    cfz.hidden = false;
+    requestAnimationFrame(() => cf.classList.add('zoomed'));
+    $('cfzx').focus({ preventScroll: true });
+  }
+  function closeZoom(silent) {
+    if (!zoomOpen) return;
+    zoomOpen = false;
+    cf.classList.remove('zoomed');
+    cfz.hidden = true; cfzi.innerHTML = '';
+    setActive(zoom.r, zoom.k, !silent);
+  }
+  function zoomStep(d) {
+    const n = rows[zoom.r].items.length;
+    zoom.k = (zoom.k + d + n) % n;
+    showZoom();
+  }
+  $('cfx').addEventListener('click', closePanel);
+  $('cfzx').addEventListener('click', () => closeZoom());
+  $('cfzp').addEventListener('click', () => zoomStep(-1));
+  $('cfzn').addEventListener('click', () => zoomStep(1));
+  cfz.addEventListener('click', e => { if (e.target === cfz) closeZoom(); });
+  cfb.addEventListener('click', e => { if (!dragMoved && !e.target.closest('.cfi,.cfl')) closePanel(); });
+  // horizontal wheel or trackpad swipe moves the row under the pointer
+  let wheelAcc = 0, wheelAt = 0;
+  cfb.addEventListener('wheel', e => {
+    if (Math.abs(e.deltaX) <= Math.abs(e.deltaY)) return;
+    e.preventDefault();
+    const rowEl = e.target.closest('.cfr'), r = rows.findIndex(x => x.el === rowEl);
+    if (r < 0) return;
+    const now = performance.now();
+    if (now - wheelAt > 300) wheelAcc = 0;
+    wheelAt = now; wheelAcc += e.deltaX;
+    if (Math.abs(wheelAcc) > 70) { curRow = r; rowStep(r, wheelAcc > 0 ? 1 : -1); wheelAcc = 0; }
+  }, { passive: false });
+  // dragging (mouse or touch) moves a row
+  let dragX = null, dragRow = -1, dragMoved = false;
+  cfb.addEventListener('pointerdown', e => {
+    const rowEl = e.target.closest('.cfr');
+    dragRow = rows.findIndex(x => x.el === rowEl); dragX = e.clientX; dragMoved = false;
+  });
+  addEventListener('pointermove', e => {
+    if (dragX === null || dragRow < 0 || !panelOpen) return;
+    const dx = e.clientX - dragX;
+    if (Math.abs(dx) > 60) { dragMoved = true; curRow = dragRow; rowStep(dragRow, dx < 0 ? 1 : -1); dragX = e.clientX; }
+  });
+  addEventListener('pointerup', () => { dragX = null; setTimeout(() => { dragMoved = false; }, 0); });
+  cfb.addEventListener('scroll', () => {
+    const mid = cfb.getBoundingClientRect().top + cfb.clientHeight / 2;
+    let best = 0, bd = 1e9;
+    rows.forEach((x, r) => { const b = x.el.getBoundingClientRect(), d = Math.abs(b.top + b.height / 2 - mid); if (d < bd) { bd = d; best = r; } });
+    curRow = best;
+  }, { passive: true });
+  addEventListener('resize', () => { if (panelOpen) layoutAll(); });
   D.querySelectorAll('.ev').forEach(b => b.addEventListener('click', () => openPanel(+b.dataset.i, b)));
-  $('px').addEventListener('click', closePanel);
-  scrim.addEventListener('click', closePanel);
+  wall.addEventListener('click', () => { if (pin && cur >= 0) openPanel(cur, stories[cur].querySelector('.ev')); });
 
-  /* ---------- lightbox ---------- */
-  const lb = $('lb'), lbi = $('lbi'), lbc = $('lbc');
-  let gi = 0, lbReturn = null;
-  function showLb() {
-    const b = gal[gi], im = b.querySelector('img');
-    lbi.src = im.currentSrc || im.src;
-    lbi.alt = im.alt;
-    lbc.textContent = b.dataset.cap + ' · ' + (gi + 1) + ' / ' + gal.length;
-  }
-  function openLb(k) {
-    gi = k; lbReturn = gal[k];
-    showLb();
-    lb.hidden = false;
-    panel.inert = true;
-    $('lbx').focus({ preventScroll: true });
-  }
-  function closeLb() {
-    lb.hidden = true;
-    panel.inert = false;
-    if (lbReturn) lbReturn.focus({ preventScroll: true });
-  }
-  const step = d => { gi = (gi + d + gal.length) % gal.length; showLb(); };
-  $('lbp').addEventListener('click', () => step(-1));
-  $('lbn').addEventListener('click', () => step(1));
-  $('lbx').addEventListener('click', closeLb);
-  lb.addEventListener('click', e => { if (e.target === lb) closeLb(); });
+  /* focus rings in the viewer only for keyboard users */
+  addEventListener('keydown', e => { if (/^(Tab|Arrow|Enter| )/.test(e.key)) R.classList.add('kbd'); }, true);
+  addEventListener('pointerdown', () => R.classList.remove('kbd'), true);
 
   /* ---------- keyboard ---------- */
   addEventListener('keydown', e => {
-    if (!lb.hidden) {
-      if (e.key === 'Escape') { e.preventDefault(); closeLb(); }
-      else if (e.key === 'ArrowRight') { e.preventDefault(); step(1); }
-      else if (e.key === 'ArrowLeft') { e.preventDefault(); step(-1); }
-      else if (e.key === 'Tab') trap(e, lb);
+    if (zoomOpen) {
+      if (e.key === 'Escape') { e.preventDefault(); closeZoom(); }
+      else if (e.key === 'ArrowRight') { e.preventDefault(); zoomStep(1); }
+      else if (e.key === 'ArrowLeft') { e.preventDefault(); zoomStep(-1); }
+      else if (e.key === 'Tab') trap(e, cfz);
       return;
     }
     if (panelOpen) {
       if (e.key === 'Escape') { e.preventDefault(); closePanel(); }
-      else if (e.key === 'Tab') trap(e, panel);
+      else if (e.key === 'ArrowRight' || e.key === 'ArrowLeft') { e.preventDefault(); rowStep(curRow, e.key === 'ArrowRight' ? 1 : -1); }
+      else if (e.key === 'ArrowDown' || e.key === 'ArrowUp') { e.preventDefault(); goRow(e.key === 'ArrowDown' ? 1 : -1); }
+      else if (e.key === 'Tab') trap(e, cf);
       return;
+    }
+    if (pin && (e.key === 'w' || e.key === 'W') && !e.altKey && !e.ctrlKey && !e.metaKey && !/^(INPUT|TEXTAREA|SELECT)$/.test(e.target.tagName || '')) {
+      const s = hlState();
+      if (s.inside) { e.preventDefault(); openPanel(s.i, stories[s.i].querySelector('.ev')); return; }
     }
     if (!pin || e.altKey || e.ctrlKey || e.metaKey) return;
     if (/^(INPUT|TEXTAREA|SELECT)$/.test((e.target.tagName || ''))) return;
@@ -471,7 +609,12 @@
     clearTimeout(idleTimer);
     idleTimer = setTimeout(startGlow, 3050);
   }, { passive: true });
-  D.addEventListener('pointerover', e => { if (cursorOn) curEl.classList.toggle('big', !!e.target.closest(HOT)); });
+  D.addEventListener('pointerover', e => {
+    if (!cursorOn) return;
+    const onWall = pin && !!e.target.closest('#wall');
+    curEl.classList.toggle('view', onWall);
+    curEl.classList.toggle('big', !onWall && !!e.target.closest(HOT));
+  });
   D.addEventListener('pointerleave', () => curEl.classList.remove('show'));
   D.documentElement.addEventListener('mouseleave', () => curEl.classList.remove('show'));
   addEventListener('blur', () => curEl.classList.remove('show'));
