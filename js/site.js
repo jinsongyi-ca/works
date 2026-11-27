@@ -132,7 +132,7 @@
       const title = f.title.replace(/^Spotify:\s*/, '');
       entries.push({ type: 'spot', src: f.dataset.src || f.src, title, ratio: 1 });
     });
-    item.querySelectorAll('.shot img').forEach(im => entries.push({ type: 'img', src: im.dataset.src || im.getAttribute('src'), alt: im.alt, ratio: (+im.getAttribute('width') || 4) / (+im.getAttribute('height') || 3) }));
+    item.querySelectorAll('.shot img').forEach(im => entries.push({ type: 'img', src: im.dataset.src || im.getAttribute('src'), alt: im.alt, spot: im.dataset.spotify || '', title: im.dataset.title || '', ratio: (+im.getAttribute('width') || 4) / (+im.getAttribute('height') || 3) }));
     const press = item.querySelector('a.press');
     if (press) entries.push({ type: 'press', href: press.href, outlet: press.querySelector('b').textContent, year: (press.querySelector('span').textContent.match(/\d{4}/) || [''])[0], ratio: 0.8 });
     return { chip, label, note: [note && note.textContent.trim(), summ && summ.textContent.trim()].filter(Boolean).join('. '), entries };
@@ -259,9 +259,10 @@
   }
   function showZoom() {
     const row = rows[zoom.r], e = row.g.entries[zoom.k];
-    cfzi.innerHTML = tileHTML(e, true) + (e.type === 'spot'
-      ? `<iframe src="${e.src}" loading="lazy" allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" title="Spotify: ${e.title}"></iframe>` : '');
-    cfzi.className = 'cfzi ' + e.type;
+    const player = e.type === 'spot' ? e.src : e.spot;
+    cfzi.innerHTML = tileHTML(e, true) + (player
+      ? `<iframe src="${player}" loading="lazy" allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" title="Spotify: ${e.title}"></iframe>` : '');
+    cfzi.className = 'cfzi ' + e.type + (e.type === 'img' && player ? ' withspot' : '');
     cfzc.textContent = `${row.g.label} · ${zoom.k + 1} / ${row.items.length}`;
   }
   function openZoom(r, k) {

@@ -357,6 +357,7 @@ h1 sup{position:absolute;right:0;left:auto;top:-.2em;font-size:.12em;font-weight
 .cfzi.press .tile{text-decoration:none;height:min(450px,56vh)}
 .cfzi.press .tile:hover{background:#fff}
 .cfzi iframe{width:min(480px,84vw);height:152px;border:0;border-radius:12px}
+.cfzi.withspot img{max-height:calc(76vh - 170px)}
 .cfzc{color:rgba(242,241,238,.6);margin:0}
 .cfzp,.cfzn{position:absolute;top:50%;transform:translateY(-50%)}
 .cfzp{left:24px}.cfzn{right:24px}
