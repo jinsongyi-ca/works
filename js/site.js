@@ -3,222 +3,79 @@
   'use strict';
   const D = document, R = D.documentElement, $ = id => D.getElementById(id);
   const reduceMQ = matchMedia('(prefers-reduced-motion: reduce)');
-  const pinMQ = matchMedia('(min-width: 1200px) and (min-height: 600px)');
   const fineMQ = matchMedia('(hover: hover) and (pointer: fine)');
-  let reduce = reduceMQ.matches, pin = false;
-
-  const hl = $('highlights'), stage = $('stage'), bar = $('bar');
-  const stories = [...D.querySelectorAll('.story')];
-  const N = stories.length, ids = stories.map(s => s.id);
-  const railBtns = [...$('rail').querySelectorAll('button')];
-  const tags = [...$('abil').children];
-  const countEl = $('count');
-  const wall = $('wall'), wallItems = [...wall.children];
-  const PAPER = { fg: '#0B0C0E', mute: '#5E6268' };
-  const theme = stories.map(s => {
-    const g = k => s.style.getPropertyValue(k).trim();
-    return { bg: g('--bg'), fg: g('--fg'), soft: g('--soft'), acc: g('--acc'), chip: g('--chipText'),
-      ab: s.dataset.ab.split(',').map(Number) };
-  });
-  const pad = n => String(n).padStart(2, '0');
+  let reduce = reduceMQ.matches;
+  const bar = $('bar');
   const behavior = () => (reduce ? 'instant' : 'smooth');
 
-  /* ---------- thumbnails: load only near the story ---------- */
-  const loaded = new Set();
-  function loadThumbs(i) {
-    if (i < 0 || i >= N || loaded.has(i)) return;
-    loaded.add(i);
-    stories[i].querySelectorAll('img[data-src]').forEach(im => { im.src = im.dataset.src; im.removeAttribute('data-src'); });
-    if (pin) { const w = wallItems[i] && wallItems[i].querySelector('img[data-src]'); if (w) { w.src = w.dataset.src; w.removeAttribute('data-src'); } }
-  }
-  if ('IntersectionObserver' in window) {
-    const io = new IntersectionObserver(es => es.forEach(e => {
-      if (e.isIntersecting && !pin) loadThumbs(+e.target.dataset.i);
-    }), { rootMargin: '600px 0px' });
-    stories.forEach(s => io.observe(s));
-  } else stories.forEach((_, i) => loadThumbs(i));
-
-  /* ---------- numbers ---------- */
-  const counted = new Set();
-  const nums = stories.map(s => {
-    const em = s.querySelector('.num em'), to = em.dataset.to;
-    return { em, to: parseFloat(to), dec: (to.split('.')[1] || '').length, txt: to };
-  });
-  function resetNumbers() {
-    nums.forEach((n, i) => {
-      if (counted.has(i)) return;
-      n.em.textContent = pin && !reduce ? (0).toFixed(n.dec) : n.txt;
-    });
-  }
-  function countUp(i) {
-    if (counted.has(i)) return;
-    counted.add(i);
-    const n = nums[i];
-    if (reduce) { n.em.textContent = n.txt; return; }
-    const t0 = performance.now(), d = 1200;
-    const f = t => {
-      const k = Math.min(1, (t - t0) / d), e = 1 - Math.pow(1 - k, 3);
-      n.em.textContent = k < 1 ? (n.to * e).toFixed(n.dec) : n.txt;
-      if (k < 1) requestAnimationFrame(f);
-    };
-    requestAnimationFrame(f);
-  }
-
-  /* ---------- hash helpers ---------- */
-  const setHash = h => {
-    const url = h ? '#' + h : location.pathname + location.search;
-    if (('#' + h) !== location.hash || !h) history.replaceState(null, '', url);
+  /* ---------- the six cases ---------- */
+  const cases = [...D.querySelectorAll('.case')];
+  const N = cases.length, ids = cases.map(c => c.id.replace(/^case-/, ''));
+  const cards = [...D.querySelectorAll('.cd')];
+  /* old links (#maple, #neo-soul/evidence, #aramark) still land on the right case */
+  const LEGACY = { aramark: 'cps' };
+  const caseIndex = id => ids.indexOf(LEGACY[id] || id);
+  const setHash = h => history.replaceState(history.state, '', h ? '#' + h : location.pathname + location.search);
+  const gcEvent = (path, title) => {
+    const gc = window.goatcounter;
+    if (gc && typeof gc.count === 'function') { try { gc.count({ path, title: title || path, event: true }); } catch (e) { /* ignore */ } }
   };
 
-  /* ---------- pinned highlights ---------- */
-  let cur = -1, wasInside = false;
-  function applyTheme(i) {
-    const t = theme[i], st = stage.style;
-    st.setProperty('--bg', t.bg); st.setProperty('--fg', t.fg); st.setProperty('--soft', t.soft);
-    st.setProperty('--acc', t.acc); st.setProperty('--chipText', t.chip);
-    stage.classList.toggle('light', t.fg.toUpperCase() !== '#FFFFFF');
+  /* ---------- the case panel ----------
+     Opening pushes #case-<id> onto history so the browser's Back closes it; Esc, ×, and a click on the backdrop close it too.
+     Focus moves into the panel, Tab cycles inside it, and returns to the card on close. */
+  const cs = $('cs'), csp = $('csp');
+  let caseOpen = -1, caseReturn = null, pushed = false, caseTimer = 0;
+  function showCase(i) {
+    cases.forEach((c, k) => c.classList.toggle('on', k === i));
+    cs.setAttribute('aria-labelledby', cases[i].id + '-h');
+    cs.removeAttribute('aria-label');
+    csp.scrollTop = 0;
+    caseOpen = i;
   }
-  function setCur(i) {
-    cur = i;
-    applyTheme(i);
-    stories.forEach((s, k) => s.classList.toggle('on', k === i));
-    railBtns.forEach((b, k) => {
-      b.classList.toggle('on', k === i);
-      if (k === i) b.setAttribute('aria-current', 'true'); else b.removeAttribute('aria-current');
-    });
-    countEl.textContent = pad(i + 1) + ' / ' + pad(N);
-    wallItems.forEach((el, k) => el.classList.toggle('on', k === i));
-    stage.classList.toggle('logo', wallItems[i].classList.contains('logo'));
-  }
-  /* Each highlight has three steps (GAP, MOVE, RESULT); one scroll step advances one beat. */
-  const B = 3, STEPS = N * B;
-  function hlState() {
-    const r = hl.getBoundingClientRect(), span = hl.offsetHeight - innerHeight;
-    const p = Math.min(0.9999, Math.max(0, -r.top / span)), k = Math.floor(p * STEPS);
-    return { r, span, k, i: Math.floor(k / B), b: k % B, inside: r.top <= 1 && r.bottom >= innerHeight - 1 };
-  }
-  /* The current beat is open; earlier beats collapse to their chip (click to reopen); later beats wait. */
-  let shown = '';
-  function setBeat(i, b) {
-    const key = i + ':' + b;
-    if (key === shown) return;
-    shown = key;
-    const st = stories[i];
-    st.querySelectorAll('.beat').forEach((el, j) => {
-      el.classList.toggle('on', j <= b);
-      el.classList.toggle('now', j === b);
-      el.classList.toggle('done', j < b);
-      const chip = el.querySelector('.chip');
-      if (j < b) { chip.setAttribute('role', 'button'); chip.tabIndex = 0; chip.setAttribute('aria-label', 'Reopen ' + chip.textContent.trim().toLowerCase()); }
-      else { chip.removeAttribute('role'); chip.removeAttribute('tabindex'); chip.removeAttribute('aria-label'); }
-    });
-    st.querySelector('.ev').classList.toggle('on', b >= 2);
-    st.querySelector('.num').classList.toggle('on', b >= 2);
-    if (b >= 2) countUp(i);
-    tags.forEach((t, k) => t.classList.toggle('lit', b >= 1 && theme[i].ab.includes(k)));
-  }
-  function reopen(e) {
-    const chip = e.target.closest('.beat.done .chip');
-    if (!chip || !pin) return;
-    if (e.type === 'keydown' && e.key !== 'Enter' && e.key !== ' ') return;
-    e.preventDefault();
-    const beat = chip.closest('.beat'), st = chip.closest('.story');
-    go(+st.dataset.i, [...st.querySelectorAll('.beat')].indexOf(beat));
-  }
-  $('stories').addEventListener('click', reopen);
-  $('stories').addEventListener('keydown', reopen);
-  function updateHighlights() {
-    const s = hlState();
-    if (s.i !== cur) setCur(s.i);
-    if (s.r.top < innerHeight * 0.6 && s.r.bottom > -innerHeight) { loadThumbs(s.i); loadThumbs(s.i + 1); }
-    const engaged = s.r.top <= innerHeight * 0.3 && s.r.bottom >= innerHeight * 0.7;
-    if (engaged || s.r.top > innerHeight * 0.3) setBeat(s.i, s.b);
-    viewSoon(engaged ? s.i : -1);
-    if (!panelOpen) {
-      if (s.inside) setHash(ids[s.i]);
-      else if (wasInside && ids.includes(location.hash.slice(1))) setHash('');
+  function openCase(i, opts = {}) {
+    if (i < 0 || i >= N) return;
+    clearTimeout(caseTimer);
+    const wasOpen = caseOpen >= 0;
+    if (!wasOpen) caseReturn = opts.opener || cards[i];
+    showCase(i);
+    const h = '#case-' + ids[i];
+    if (opts.fromHash) { pushed = false; }
+    else if (!wasOpen) { history.pushState({ sjCase: 1 }, '', h); pushed = true; }
+    else history.replaceState(history.state, '', h);
+    if (!wasOpen) {
+      cs.classList.add('open');
+      R.classList.add('locked');
+      requestAnimationFrame(() => requestAnimationFrame(() => cs.classList.add('in')));
     }
-    wasInside = s.inside;
+    csp.focus({ preventScroll: true });
+    gcEvent('view-' + ids[i], 'Case opened: ' + ids[i]);
   }
-  const stepTop = k => hl.offsetTop + (hl.offsetHeight - innerHeight) * k / STEPS + 2;
-  function go(i, b = 0) {
-    i = Math.max(0, Math.min(N - 1, i));
-    if (pin) scrollTo({ top: stepTop(i * B + b), behavior: behavior() });
-    else stories[i].scrollIntoView({ behavior: behavior(), block: 'start' });
+  function hideCase() {
+    if (caseOpen < 0) return;
+    if (panelOpen) closePanel();
+    const i = caseOpen;
+    caseOpen = -1;
+    cs.classList.remove('in');
+    R.classList.remove('locked');
+    caseTimer = setTimeout(() => { if (caseOpen < 0) { cs.classList.remove('open'); cases.forEach(c => c.classList.remove('on')); } }, reduce ? 0 : 260);
+    const back = caseReturn || cards[i];
+    if (back && back.focus) back.focus({ preventScroll: true });
   }
-  const goStep = k => scrollTo({ top: stepTop(Math.max(0, Math.min(STEPS - 1, k))), behavior: behavior() });
-
-  /* One scroll gesture moves exactly one highlight. Momentum from the same gesture is swallowed. */
-  let stepAt = -1e9, lastInput = 0, lastMag = 0;
-  function busy(now, quiet, mag, prevMag) {
-    if (now - stepAt < 750) return true;           // the move itself
-    if (quiet >= 180) return false;                 // a pause means a new gesture
-    if (mag >= 15 && mag > prevMag * 1.6) return false; // a fresh flick during momentum
-    return now - stepAt < 8000;                     // momentum tail of the same gesture
+  /* closing from the page: step back through history if we added the entry, otherwise just clear the hash */
+  function closeCase() {
+    if (caseOpen < 0) return;
+    if (pushed) { pushed = false; history.back(); return; }   // popstate hides it
+    setHash('');
+    hideCase();
   }
-  function stepHl(dir) {
-    const s = hlState(), vh = innerHeight;
-    if (s.inside) {
-      if (dir > 0 && s.k === STEPS - 1) scrollTo({ top: $('summary').offsetTop, behavior: behavior() });
-      else if (dir < 0 && s.k === 0) scrollTo({ top: 0, behavior: behavior() });
-      else goStep(s.k + dir);
-      return true;
-    }
-    if (dir > 0 && s.r.top > 1 && s.r.top < vh * 0.9) { goStep(0); return true; }
-    if (dir < 0 && s.r.bottom < vh - 1 && s.r.bottom > vh * 0.1) { goStep(STEPS - 1); return true; }
-    return false;
-  }
-  function onInput(e, dir, mag) {
-    if (!pin || panelOpen) return;
-    const now = performance.now(), quiet = now - lastInput, prevMag = lastMag;
-    lastInput = now; lastMag = mag;
-    if (busy(now, quiet, mag, prevMag)) { e.preventDefault(); return; }
-    const s = hlState(), vh = innerHeight;
-    if (!(s.r.top < vh * 0.9 && s.r.bottom > vh * 0.1)) return;
-    if (stepHl(dir)) { e.preventDefault(); stepAt = now; }
-  }
-  addEventListener('wheel', e => {
-    if (e.ctrlKey || Math.abs(e.deltaY) < 2 || Math.abs(e.deltaX) > Math.abs(e.deltaY)) return;
-    onInput(e, e.deltaY > 0 ? 1 : -1, Math.abs(e.deltaMode ? e.deltaY * 33 : e.deltaY));
-  }, { passive: false });
-  let touchY = null, touchDone = false;
-  addEventListener('touchstart', e => { touchY = e.touches[0].clientY; touchDone = false; }, { passive: true });
-  addEventListener('touchmove', e => {
-    if (touchY === null || !pin || panelOpen) return;
-    const s = hlState();
-    if (!(s.r.top < innerHeight * 0.9 && s.r.bottom > innerHeight * 0.1)) return;
-    const dy = touchY - e.touches[0].clientY;
-    if (touchDone) { e.preventDefault(); return; }
-    if (Math.abs(dy) < 40) { if (s.inside) e.preventDefault(); return; }
-    touchDone = true;
-    onInput(e, dy > 0 ? 1 : -1, 100);
-  }, { passive: false });
-  railBtns.forEach((b, i) => b.addEventListener('click', () => go(i)));
-
-  /* ---------- top bar and cursor colour follow the background ---------- */
-  function updateBar() {
-    const y = bar.offsetHeight / 2;
-    let fg = PAPER.fg, mute = PAPER.mute, bg = scrollY < 4 ? 'rgba(250,250,248,0)' : 'rgba(250,250,248,1)', cc = '#A88B5F';
-    let t = null, onStage = false;
-    if (pin) {
-      const r = hl.getBoundingClientRect();
-      if (r.top <= y && r.bottom > y && cur >= 0) { t = theme[cur]; onStage = true; }
-    } else {
-      for (let k = 0; k < N; k++) {
-        const r = stories[k].getBoundingClientRect();
-        if (r.top <= y && r.bottom > y) { t = theme[k]; break; }
-      }
-    }
-    if (t) {
-      fg = t.fg; mute = t.soft; bg = onStage ? 'rgba(0,0,0,0)' : t.bg;
-      cc = t.fg.toUpperCase() === '#FFFFFF' ? t.acc : t.fg;
-    }
-    const s = R.style;
-    s.setProperty('--bar-fg', fg); s.setProperty('--bar-mute', mute); s.setProperty('--bar-bg', bg);
-    bar.classList.toggle('onstage', onStage);
-    if (onStage) s.setProperty('--bar-fill', t.bg);
-    s.setProperty('--cc', panelOpen ? '#A88B5F' : cc);
-  }
+  cards.forEach((a, i) => a.addEventListener('click', e => { e.preventDefault(); openCase(i, { opener: a }); }));
+  $('csx').addEventListener('click', closeCase);
+  $('csbg').addEventListener('click', closeCase);
+  cs.addEventListener('click', e => { if (e.target === cs) closeCase(); });
+  $('csprev').addEventListener('click', () => openCase((caseOpen - 1 + N) % N));
+  $('csnext').addEventListener('click', () => openCase((caseOpen + 1) % N));
+  D.querySelectorAll('.see').forEach(b => b.addEventListener('click', () => openPanel(+b.dataset.i, b)));
 
   /* ---------- timeline ---------- */
   const road = D.querySelector('.road'), trunk = $('trunk');
@@ -228,38 +85,6 @@
     const p = Math.min(1, Math.max(0, (innerHeight * 0.75 - r.top) / r.height));
     trunk.style.transform = 'scaleY(' + p.toFixed(4) + ')';
   }
-  /* ---------- summary ---------- */
-  const summary = $('summary');
-  if ('IntersectionObserver' in window && !reduce) {
-    new IntersectionObserver((es, o) => {
-      if (es[0].isIntersecting) { summary.classList.add('in'); setTimeout(() => summary.classList.add('done'), 1600); o.disconnect(); }
-    }, { threshold: 0.35 }).observe(summary);
-  } else summary.classList.add('in');
-
-  /* summary grid hover: rows (label or squares) and company columns */
-  const grid = summary.querySelector('.grid'), cells = [...grid.children], COLS = N + 1;
-  cells.forEach((c, k) => { c.dataset.r = Math.floor(k / COLS); c.dataset.c = k % COLS; });
-  const filled = (r, c) => !!cells[r * COLS + c].querySelector('.sq.f');
-  function lightGrid(mode, n) {
-    grid.classList.add('hov');
-    cells.forEach(el => {
-      const r = +el.dataset.r, c = +el.dataset.c;
-      let on = false;
-      if (mode === 'row') on = r === n ? (c === 0 || filled(r, c)) : (r === 0 && c > 0 && filled(n, c));
-      else on = c === n ? (r === 0 || filled(r, c)) : (c === 0 && r > 0 && filled(r, n));
-      el.classList.toggle('gl', on);
-    });
-  }
-  grid.addEventListener('pointerover', e => {
-    const el = e.target.closest('.grid > *');
-    if (!el) return;
-    const r = +el.dataset.r, c = +el.dataset.c;
-    if (r === 0 && c > 0) lightGrid('col', c);
-    else if (r > 0) lightGrid('row', r);
-  });
-  grid.addEventListener('pointerleave', () => { grid.classList.remove('hov'); cells.forEach(el => el.classList.remove('gl')); });
-
-  /* timeline: education details start collapsed */
   D.querySelectorAll('.more').forEach(b => b.addEventListener('click', () => {
     const node = b.closest('.node'), open = !node.classList.contains('open');
     node.classList.toggle('open', open);
@@ -270,36 +95,18 @@
     if (b && !node.classList.contains('open')) b.click();
   }
 
-  /* ---------- scroll loop ---------- */
-  let ticking = false;
-  function update() {
-    ticking = false;
-    if (pin) updateHighlights();
-    updateBar();
-    updateTrunk();
+  /* ---------- top bar: solid once the page has scrolled ---------- */
+  function updateBar() {
+    R.style.setProperty('--bar-bg', scrollY < 4 ? 'rgba(250,250,248,0)' : 'rgba(250,250,248,.96)');
   }
+  let ticking = false;
+  function update() { ticking = false; updateBar(); updateTrunk(); }
   const onScroll = () => { if (!ticking) { ticking = true; requestAnimationFrame(update); } };
   addEventListener('scroll', onScroll, { passive: true });
   addEventListener('resize', onScroll);
-
-  function setMode() {
-    pin = pinMQ.matches;
-    R.classList.toggle('pin', pin);
-    if (!pin) {
-      stories.forEach(s => { s.classList.remove('on'); s.querySelectorAll('.on,.now,.done').forEach(e => e.classList.remove('on', 'now', 'done')); });
-      stage.removeAttribute('style');
-      cur = -1; shown = '';
-    }
-    resetNumbers();
-    update();
-  }
-  pinMQ.addEventListener('change', () => {
-    const at = cur >= 0 ? cur : 0;
-    setMode();
-    if (hl.getBoundingClientRect().top < 0) go(at);
-  });
   reduceMQ.addEventListener('change', () => { reduce = reduceMQ.matches; setCursor(); update(); });
 
+  /* ---------- focus trap ---------- */
   /* ---------- focus trap ---------- */
   const FOCUSABLE = 'a[href],button:not([disabled]),iframe,[tabindex]:not([tabindex="-1"])';
   function trap(e, root) {
@@ -317,10 +124,6 @@
   const flatMQ = matchMedia('(max-width: 767px)');
   let panelOpen = false, zoomOpen = false, panelFor = -1, panelReturn = null, rows = [], curRow = 0, zoom = null, cfTimer = 0;
   const flat = () => reduce || flatMQ.matches;
-  function gcEvent(path) {
-    const gc = window.goatcounter;
-    if (gc && typeof gc.count === 'function') { try { gc.count({ path, event: true }); } catch (e) { /* ignore */ } }
-  }
   function readGroup(item) {
     const chip = item.querySelector('.band .chip'), lbl = item.querySelector('.band .lbl'), note = item.querySelector('.band .note'), summ = item.querySelector('.summ');
     const label = (chip || lbl).textContent.trim();
@@ -443,21 +246,16 @@
     requestAnimationFrame(() => { layoutAll(); cf.classList.add('in'); });
     cfb.scrollTop = 0;
     setTimeout(() => { const r = rows[0]; if (r) r.items[Math.max(0, r.a)].focus({ preventScroll: true }); }, 30);
-    setHash(ids[i] + '/evidence');
     gcEvent('work-' + ids[i]);
-    updateBar();
   }
   function closePanel() {
     if (!panelOpen) return;
     if (zoomOpen) closeZoom(true);
     panelOpen = false;
     cf.classList.remove('in');
-    R.classList.remove('locked');
+    if (caseOpen < 0) R.classList.remove('locked');
     cfTimer = setTimeout(() => { if (!panelOpen) { cf.hidden = true; cfb.innerHTML = ''; rows = []; } }, reduce ? 0 : 360);
-    const s = hlState();
-    setHash(pin && s.inside ? ids[s.i] : '');
     if (panelReturn && panelReturn.focus) panelReturn.focus({ preventScroll: true });
-    updateBar();
   }
   function showZoom() {
     const row = rows[zoom.r], e = row.g.entries[zoom.k];
@@ -534,8 +332,7 @@
     if (best !== curRow && performance.now() - vAt > 900) { curRow = best; markRow(); }
   }, { passive: true });
   addEventListener('resize', () => { if (panelOpen) layoutAll(); });
-  D.querySelectorAll('.ev').forEach(b => b.addEventListener('click', () => openPanel(+b.dataset.i, b)));
-  wall.addEventListener('click', () => { if (pin && cur >= 0) openPanel(cur, stories[cur].querySelector('.ev')); });
+
 
   /* focus rings in the viewer only for keyboard users */
   addEventListener('keydown', e => { if (/^(Tab|Arrow|Enter| )/.test(e.key)) R.classList.add('kbd'); }, true);
@@ -557,55 +354,44 @@
       else if (e.key === 'Tab') trap(e, cf);
       return;
     }
-    if (pin && (e.key === 'w' || e.key === 'W') && !e.altKey && !e.ctrlKey && !e.metaKey && !/^(INPUT|TEXTAREA|SELECT)$/.test(e.target.tagName || '')) {
-      const s = hlState();
-      if (s.inside) { e.preventDefault(); openPanel(s.i, stories[s.i].querySelector('.ev')); return; }
+    if (caseOpen >= 0) {
+      if (e.key === 'Escape') { e.preventDefault(); closeCase(); }
+      else if (e.key === 'Tab') trap(e, csp);
     }
-    if (!pin || e.altKey || e.ctrlKey || e.metaKey) return;
-    if (/^(INPUT|TEXTAREA|SELECT)$/.test((e.target.tagName || ''))) return;
-    const s = hlState();
-    if (!s.inside) return;
-    const k = e.key;
-    const dir = (k === 'ArrowDown' || k === 'j' || k === 'J' || k === 'PageDown' || (k === ' ' && !e.shiftKey)) ? 1
-      : (k === 'ArrowUp' || k === 'k' || k === 'K' || k === 'PageUp' || (k === ' ' && e.shiftKey)) ? -1 : 0;
-    if (!dir) return;
-    if (/^(BUTTON|A)$/.test(e.target.tagName || '') && k === ' ') return;
-    e.preventDefault();
-    const now = performance.now();
-    if (now - stepAt < 450) return;
-    if (stepHl(dir)) stepAt = now;
   });
 
-  /* ---------- in-page links and deep links ---------- */
+  /* ---------- in-page links, deep links and the Back button ---------- */
   function route(hash, first) {
-    const [id, sub] = hash.replace(/^#/, '').split('/');
-    const i = ids.indexOf(id);
+    const [raw, sub] = hash.replace(/^#/, '').split('/');
+    const id = raw.replace(/^case-/, ''), i = caseIndex(id);
     if (i >= 0) {
-      if (first || !pin || sub === 'evidence') {
-        if (pin) {
-          scrollTo({ top: stepTop(i * B + (sub === 'evidence' ? 2 : 0)), behavior: 'instant' });
-          update();
-        } else stories[i].scrollIntoView({ behavior: first || sub ? 'instant' : behavior(), block: 'start' });
-      } else go(i);
-      update();
-      if (sub === 'evidence') requestAnimationFrame(() => requestAnimationFrame(() => openPanel(i, stories[i].querySelector('.ev'))));
-      else if (panelOpen) closePanel();
+      if (first) $('highlights').scrollIntoView({ behavior: 'instant', block: 'start' });
+      openCase(i, { fromHash: true });
+      if (sub === 'evidence' || sub === 'work') requestAnimationFrame(() => openPanel(i, cases[i].querySelector('.see')));
       return true;
     }
-    if (/^t-/.test(id) && $(id)) {
-      openNode(id);
-      $(id).scrollIntoView({ behavior: first ? 'instant' : behavior(), block: 'start' });
+    if (caseOpen >= 0) hideCase();
+    if (/^t-/.test(raw) && $(raw)) {
+      openNode(raw);
+      $(raw).scrollIntoView({ behavior: first ? 'instant' : behavior(), block: 'start' });
       return true;
     }
     return false;
   }
+  addEventListener('popstate', () => {
+    pushed = false;
+    if (!route(location.hash, false) && caseOpen >= 0) hideCase();
+  });
+  /* links such as "Read the case" in the timeline open the panel without scrolling */
   D.addEventListener('click', e => {
     const a = e.target.closest('a[href^="#"]');
-    if (!a) return;
-    const h = a.getAttribute('href'), id = h.slice(1).split('/')[0];
-    if (ids.includes(id)) { e.preventDefault(); route(h, false); setHash(h.slice(1)); }
+    if (!a || a.classList.contains('cd')) return;
+    const h = a.getAttribute('href').slice(1), id = h.replace(/^case-/, '').split('/')[0];
+    if (/^case-/.test(h) || (caseIndex(id) >= 0 && h === id)) {
+      e.preventDefault();
+      openCase(caseIndex(id), { opener: a });
+    }
   });
-  addEventListener('hashchange', () => route(location.hash, false));
 
   /* ---------- email: copy on click, mailto as fallback ---------- */
   const mail = $('mail'), copied = $('copied');
@@ -644,9 +430,7 @@
   }, { passive: true });
   D.addEventListener('pointerover', e => {
     if (!cursorOn) return;
-    const onWall = pin && !!e.target.closest('#wall');
-    curEl.classList.toggle('view', onWall);
-    curEl.classList.toggle('big', !onWall && !!e.target.closest(HOT));
+    curEl.classList.toggle('big', !!e.target.closest(HOT));
   });
   D.addEventListener('pointerleave', () => curEl.classList.remove('show'));
   D.documentElement.addEventListener('mouseleave', () => curEl.classList.remove('show'));
@@ -685,43 +469,12 @@
   updateBarMin();
   fineMQ.addEventListener('change', setCursor);
 
-  /* ---------- analytics: one "view-<id>" event per highlight per visit ----------
-     Counted once a highlight has stayed active for a second, so passing through does not count.
-     Guarded: if GoatCounter is blocked or not loaded yet, nothing breaks. */
-  const viewed = new Set(), pendingViews = [];
-  let viewTimer = 0, viewFor = -1;
-  function sendView(id) {
-    const gc = window.goatcounter;
-    if (gc && typeof gc.count === 'function') {
-      try { gc.count({ path: 'view-' + id, title: 'Highlight viewed: ' + id, event: true }); } catch (e) { /* ignore */ }
-    } else pendingViews.push(id);
-  }
-  function viewSoon(i) {
-    if (i === viewFor) return;
-    viewFor = i;
-    clearTimeout(viewTimer);
-    if (i < 0 || viewed.has(i)) return;
-    viewTimer = setTimeout(() => { viewed.add(i); sendView(ids[i]); }, 1000);
-  }
-  addEventListener('load', () => {
-    const flush = () => { if (window.goatcounter && typeof window.goatcounter.count === 'function') pendingViews.splice(0).forEach(sendView); };
-    flush(); setTimeout(flush, 3000);
-  });
-  if ('IntersectionObserver' in window) {
-    const vio = new IntersectionObserver(es => es.forEach(e => {
-      if (pin) return;
-      const i = +e.target.dataset.i;
-      if (e.isIntersecting) viewSoon(i); else if (viewFor === i) viewSoon(-1);
-    }), { threshold: 0.5 });
-    stories.forEach(st => vio.observe(st));
-  }
-
   /* ---------- small screens: the top bar hides on scroll down, returns on scroll up ---------- */
   const smallMQ = matchMedia('(max-width: 767px)');
   let lastY = scrollY;
   addEventListener('scroll', () => {
     const y = scrollY;
-    if (!smallMQ.matches || panelOpen) { bar.classList.remove('away'); lastY = y; return; }
+    if (!smallMQ.matches || panelOpen || caseOpen >= 0) { bar.classList.remove('away'); lastY = y; return; }
     if (Math.abs(y - lastY) < 6) return;
     bar.classList.toggle('away', y > lastY && y > bar.offsetHeight && !bar.contains(D.activeElement));
     lastY = y;
@@ -730,8 +483,6 @@
 
   /* ---------- start ---------- */
   setCursor();
-  setMode();
-  if (location.hash && location.hash !== '#') {
-    requestAnimationFrame(() => route(location.hash, true));
-  }
+  update();
+  if (location.hash && location.hash !== '#') requestAnimationFrame(() => route(location.hash, true));
 })();
