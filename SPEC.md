@@ -28,6 +28,7 @@ Agreed with Sonny on 2026-11-28. A second section that shows how he thinks, afte
 - **Held back until Sonny fills the gaps:** the Times Square billboard vote (result missing) and the oral care newcomer campaign (research method missing). The earned-media line of the electronics case stays blank until he supplies it.
 - No cross-links between Highlights and Case files for now (Sonny, 2026-11-28).
 - **2026-11-28 round 2 (Sonny):** numbers as digits wherever they count something (titles included: "1 chart, 3 answers", "A week’s RFP in 2.5 days"). Highlights cards carry no dates (the panels keep them). On phones (≤767px) Case files shows only 3 cards before "See all" (`.kftop`: diaper, conversion, anti-aging); wider screens keep the featured 8. On phones the top bar drops Home and Timeline. The opening 金: the ghost and the gold light fade in only after the brush finishes, so no finished glyph shows under the drawing.
+- **Naming (Sonny, 2026-11-28):** only Case files are "cases". Highlights are companies: "6 companies, in brief.", cards say "Open", panel nav "Previous company / Next company", timeline links "The full story: <company>".
 - The SparkLease OEM gallery shows live placements, not mockups.
 
 ## 0. Read first
