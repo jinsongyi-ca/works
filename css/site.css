@@ -117,6 +117,8 @@ h1 sup{position:absolute;right:0;left:auto;top:-.2em;font-size:.12em;font-weight
 
 /* ---------- entrance, once per visit (html.enter is set in the head; never under reduced motion) ---------- */
 .enter .g.write{display:block;animation:settle 1.2s ease 3.51s forwards}
+/* the ghost and the light wait until the brush has finished, so nothing pre-written shows under it */
+.enter .g.ghost,.enter .g.lit{animation:fade 1.2s ease 3.51s both}
 .enter .g.write .st{animation:draw var(--d) cubic-bezier(.45,.05,.35,1) var(--s) forwards}
 .enter h1{animation:rise .8s var(--ease) .6s both}
 .enter .inscr{animation:stamp .45s cubic-bezier(.3,1.5,.55,1) .9s both}
@@ -561,9 +563,11 @@ h1 sup{position:absolute;right:0;left:auto;top:-.2em;font-size:.12em;font-weight
   .bar{padding:16px var(--m)}
   .brand img{width:26px;height:26px}
   .brand span{font-size:14px;letter-spacing:.18em}
-  .links{gap:16px}
-  .links a{font-size:10px;letter-spacing:.14em;white-space:nowrap}
-  .links{gap:14px}
+  /* phones: the seal already goes home and the timeline is one scroll past the cases,
+     so HOME and TIMELINE leave the bar and the 4 that stay get room to breathe */
+  .links{gap:20px;align-items:center}
+  .links a{font-size:10px;letter-spacing:.12em;white-space:nowrap}
+  .links a[href="#top"],.links a[href="#timeline"]{display:none}
   .hero{height:auto;min-height:100svh;display:flex;flex-direction:column;justify-content:space-between;padding:110px var(--m) 32px}
   .intro{position:static;width:auto}
   .namerow{gap:14px}
@@ -590,6 +594,7 @@ h1 sup{position:absolute;right:0;left:auto;top:-.2em;font-size:.12em;font-weight
   .cl{gap:24px}
 }
 
+@media (max-width:379px){.links{gap:12px}.links a{letter-spacing:.08em}}
 @media (max-width:479px){.brand span{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}}
 @media (prefers-reduced-motion:reduce){
   html{scroll-behavior:auto}
