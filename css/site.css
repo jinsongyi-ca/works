@@ -370,6 +370,13 @@ h1 sup{position:absolute;right:0;left:auto;top:-.2em;font-size:.12em;font-weight
 .kfup:focus-visible{outline:2px solid var(--ink);outline-offset:3px}
 .kfup.beckon{border-color:var(--gold-text);background:#FBF7F0;animation:kfbeckon 1.8s ease-in-out .4s infinite}
 .kfup.beckon .kfupa{animation:kfnudge 1.8s ease-in-out .4s infinite}
+.js .kfvis.r2 .kfdot.fast{animation:kfflow22 .9s linear infinite}
+.js .kfvis.r2 .kfdot.slow{animation:kfflow44 3.2s linear infinite}
+.js .kfvis.r3 .kfblink{animation:kfblink .5s ease-in-out .3s 3 both}
+.js .kfvis.r3 .kfq{opacity:0}
+@keyframes kfflow22{to{stroke-dashoffset:-22}}
+@keyframes kfflow44{to{stroke-dashoffset:-44}}
+@keyframes kfblink{0%,100%{opacity:1}50%{opacity:.15}}
 @keyframes kfrise{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
 @keyframes kfsheet{from{opacity:0;transform:scale(.985)}to{opacity:1;transform:none}}
 @keyframes kfnum{from{opacity:0;transform:translateX(60px)}to{opacity:1;transform:none}}
