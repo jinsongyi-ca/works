@@ -491,7 +491,9 @@
     const kChips = [...kf.querySelectorAll('.kfchip')], kMore = $('kfmore');
     const kd = $('kfd'), kp = $('kfp'), kStep = $('kfstep'), kUp = $('kfup'), kHint = $('kfhint');
     let kFilter = 'all', kAll = false, kOpen = -1, kAt = 1, kPushed = false, kReturn = null, kRaf = 0;
-    const shown = li => (kFilter === 'all' ? (kAll || !li.classList.contains('kfx')) : li.dataset.g === kFilter);
+    /* before "See all": the featured cards on wider screens, only the 3 marked .kftop on phones */
+    const narrowMQ = matchMedia('(max-width: 767px)');
+    const shown = li => (kFilter === 'all' ? (kAll || (narrowMQ.matches ? li.classList.contains('kftop') : !li.classList.contains('kfx'))) : li.dataset.g === kFilter);
     function applyFilter(animate) {
       kItems.forEach((li, i) => {
         const was = !li.hidden, on = shown(li);
@@ -505,11 +507,13 @@
     }
     kChips.forEach(c => c.addEventListener('click', () => { kFilter = c.dataset.f; applyFilter(true); }));
     kMore.addEventListener('click', () => {
+      const before = kItems.map(li => li.hidden);
       kAll = true; applyFilter(true);
-      const first = kItems.find(li => li.classList.contains('kfx') && !li.hidden);
+      const first = kItems.find((li, i) => before[i] && !li.hidden);
       if (first) first.querySelector('a').focus({ preventScroll: true });
     });
     applyFilter(false);
+    narrowMQ.addEventListener('change', () => applyFilter(false));
     /* the reading order for "Up next": the cards as shown; a case opened from a link that isn't shown reads through all */
     const kOrder = () => {
       const o = kItems.map((li, i) => (li.hidden ? -1 : i)).filter(i => i >= 0);
