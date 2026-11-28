@@ -481,6 +481,145 @@
   }, { passive: true });
   bar.addEventListener('focusin', () => bar.classList.remove('away'));
 
+  /* ---------- case files ----------
+     Cards filter by ability; eight show first, "See all" adds the rest. A card opens a full-screen sheet:
+     chapter band, three steps that build the drawing, and "Up next" at the foot. Opening pushes #how-<slug>. */
+  const kf = $('cases');
+  if (kf) {
+    const kItems = [...kf.querySelectorAll('.kfc')], kEntries = [...kf.querySelectorAll('.kfe')];
+    const kSlugs = kEntries.map(e => e.id.replace(/^how-/, ''));
+    const kChips = [...kf.querySelectorAll('.kfchip')], kMore = $('kfmore');
+    const kd = $('kfd'), kp = $('kfp'), kStep = $('kfstep'), kUp = $('kfup'), kHint = $('kfhint');
+    let kFilter = 'all', kAll = false, kOpen = -1, kAt = 1, kPushed = false, kReturn = null, kRaf = 0;
+    const shown = li => (kFilter === 'all' ? (kAll || !li.classList.contains('kfx')) : li.dataset.g === kFilter);
+    function applyFilter(animate) {
+      kItems.forEach((li, i) => {
+        const was = !li.hidden, on = shown(li);
+        li.hidden = !on;
+        li.classList.remove('rise');
+        if (animate && on && !was && !reduce) { li.style.animationDelay = (i % 6) * 0.05 + 's'; void li.offsetWidth; li.classList.add('rise'); }
+      });
+      kChips.forEach(c => c.setAttribute('aria-pressed', String(c.dataset.f === kFilter)));
+      kMore.hidden = kFilter !== 'all' || kAll;
+      kMore.setAttribute('aria-expanded', String(kAll));
+    }
+    kChips.forEach(c => c.addEventListener('click', () => { kFilter = c.dataset.f; applyFilter(true); }));
+    kMore.addEventListener('click', () => {
+      kAll = true; applyFilter(true);
+      const first = kItems.find(li => li.classList.contains('kfx') && !li.hidden);
+      if (first) first.querySelector('a').focus({ preventScroll: true });
+    });
+    applyFilter(false);
+    /* the reading order for "Up next": the cards as shown; a case opened from a link that isn't shown reads through all */
+    const kOrder = () => {
+      const o = kItems.map((li, i) => (li.hidden ? -1 : i)).filter(i => i >= 0);
+      return o.includes(kOpen) ? o : kItems.map((_, i) => i);
+    };
+    function countUp(el) {
+      cancelAnimationFrame(kRaf);
+      const a = +el.dataset.from, b = +el.dataset.to, fmt = v => Math.round(v).toLocaleString('en-US');
+      if (reduce) { el.textContent = fmt(b); return; }
+      const t0 = performance.now();
+      const tick = t => {
+        const p = Math.min(1, (t - t0) / 1400);
+        el.textContent = fmt(a + (b - a) * (1 - Math.pow(1 - p, 3)));
+        if (p < 1) kRaf = requestAnimationFrame(tick);
+      };
+      kRaf = requestAnimationFrame(tick);
+    }
+    function setStep(n) {
+      const e = kEntries[kOpen];
+      if (!e) return;
+      kAt = n;
+      e.querySelectorAll('.kfs').forEach(s => {
+        const on = +s.dataset.n === n;
+        s.classList.toggle('on', on);
+        s.querySelector('.kfsx').hidden = !on;
+        s.querySelector('.kfsb').setAttribute('aria-expanded', String(on));
+      });
+      const v = e.querySelector('.kfvis');
+      [1, 2, 3].forEach(k => v.classList.toggle('r' + k, k <= n));
+      const c = v.querySelector('.kfcount');
+      if (c) { if (n === 3) countUp(c); else { cancelAnimationFrame(kRaf); c.textContent = (+c.dataset.from).toLocaleString('en-US'); } }
+      kStep.hidden = n === 3;
+      kUp.classList.toggle('beckon', n === 3);
+      kHint.innerHTML = n === 3 ? 'That’s the case. Keep going <span class="ar" aria-hidden="true">→</span>' : '';
+    }
+    function fillNav() {
+      const o = kOrder(), at = o.indexOf(kOpen), nx = o[(at + 1) % o.length];
+      $('kfpos').textContent = 'Case ' + (at + 1) + ' of ' + o.length;
+      $('kfdots').innerHTML = o.length > 1 && o.length <= 14 ? o.map(i => '<i' + (i === kOpen ? ' class="on"' : '') + '></i>').join('') : '';
+      const nxItem = kItems[nx];
+      kUp.dataset.to = String(o.length > 1 ? nx : -1);
+      $('kfupi').src = nxItem.querySelector('img').getAttribute('src');
+      $('kfupk').textContent = o.length > 1 ? 'Up next · ' + nxItem.querySelector('.kfch').textContent.split(' · ')[0] : 'Back to all cases';
+      $('kfupn').textContent = o.length > 1 ? nxItem.querySelector('.kft').textContent : 'See every case';
+      kUp.setAttribute('aria-label', o.length > 1 ? 'Next case: ' + nxItem.querySelector('.kft').textContent : 'Back to all cases');
+    }
+    function openK(i, opts = {}) {
+      if (i < 0 || i >= kEntries.length) return;
+      const wasOpen = kOpen >= 0;
+      if (!wasOpen) kReturn = opts.opener || kItems[i].querySelector('a');
+      kOpen = i;
+      kEntries.forEach((e, k) => e.classList.toggle('on', k === i));
+      const e = kEntries[i];
+      kd.setAttribute('aria-labelledby', e.id + '-h');
+      kd.removeAttribute('aria-label');
+      kp.dataset.g = e.dataset.g;
+      e.querySelectorAll('img[data-src]').forEach(img => { img.src = img.dataset.src; img.removeAttribute('data-src'); });
+      const v = e.querySelector('.kfvis');
+      v.classList.remove('r1', 'r2', 'r3');
+      const h = '#how-' + kSlugs[i];
+      if (opts.fromHash) kPushed = false;
+      else if (!wasOpen) { history.pushState({ sjHow: 1 }, '', h); kPushed = true; }
+      else history.replaceState(history.state, '', h);
+      if (!wasOpen) { kd.classList.add('open'); R.classList.add('locked'); }
+      else { kp.style.animation = 'none'; void kp.offsetWidth; kp.style.animation = ''; }
+      kp.scrollTop = 0;
+      fillNav();
+      void v.offsetWidth;
+      setStep(1);
+      kp.focus({ preventScroll: true });
+      gcEvent('view-how-' + kSlugs[i], 'Case file opened: ' + kSlugs[i]);
+    }
+    function hideK() {
+      if (kOpen < 0) return;
+      const i = kOpen;
+      kOpen = -1;
+      cancelAnimationFrame(kRaf);
+      kd.classList.remove('open');
+      kEntries.forEach(e => e.classList.remove('on'));
+      R.classList.remove('locked');
+      const back = kReturn || kItems[i].querySelector('a');
+      if (back && back.offsetParent !== null) back.focus({ preventScroll: true });
+    }
+    function closeK() {
+      if (kOpen < 0) return;
+      if (kPushed) { kPushed = false; history.back(); return; }
+      setHash('');
+      hideK();
+    }
+    kItems.forEach((li, i) => li.querySelector('a').addEventListener('click', ev => { ev.preventDefault(); openK(i, { opener: ev.currentTarget }); }));
+    kEntries.forEach(e => e.querySelectorAll('.kfsb').forEach(b => b.addEventListener('click', () => setStep(+b.closest('.kfs').dataset.n))));
+    kStep.addEventListener('click', () => setStep(Math.min(3, kAt + 1)));
+    kUp.addEventListener('click', () => { const t = +kUp.dataset.to; if (t >= 0) openK(t); else closeK(); });
+    $('kfclose').addEventListener('click', closeK);
+    addEventListener('keydown', ev => {
+      if (kOpen < 0) return;
+      if (ev.key === 'Escape') { ev.preventDefault(); closeK(); }
+      else if (ev.key === 'Tab') trap(ev, kp);
+      else if (ev.key === 'ArrowRight' && kAt < 3) { ev.preventDefault(); setStep(kAt + 1); }
+      else if (ev.key === 'ArrowLeft' && kAt > 1) { ev.preventDefault(); setStep(kAt - 1); }
+    });
+    const kRoute = (hash, first) => {
+      const m = /^#how-(.+)$/.exec(hash || ''), i = m ? kSlugs.indexOf(m[1]) : -1;
+      if (i >= 0) { if (first) kf.scrollIntoView({ behavior: 'instant', block: 'start' }); openK(i, { fromHash: true }); return true; }
+      return false;
+    };
+    addEventListener('popstate', () => { kPushed = false; if (!kRoute(location.hash, false)) hideK(); });
+    if (location.hash) requestAnimationFrame(() => kRoute(location.hash, true));
+  }
+
   /* ---------- start ---------- */
   setCursor();
   update();

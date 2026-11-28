@@ -15,6 +15,20 @@ Driven by a cold HR / hiring-manager review. Positioning, structure and copy wer
 - **Timeline.** Adds "Independent ventures" (2025, per the résumé) and fills "Next". "Told above ↑" became "Read the case: <name> →", which opens the panel. Toolkit gains "Languages · English and Mandarin (bilingual)".
 - The copy itself lives in `index.html`; the case text there is the source of truth.
 
+## 2026-11 Case files (overrides everything below where they differ)
+
+Agreed with Sonny on 2026-11-28. A second section that shows how he thinks, after Highlights shows what he achieved.
+
+- **Page:** Hero → Worked with → Highlights → **Case files** → Bridge → Timeline → Contact. Top bar: Home · Highlights · Case files · Timeline · Contact · Résumé. The hero has a small "See how I work →" link to `#cases`. The bridge before the timeline reads "Same way of thinking, eleven years of trying it. Here’s the whole road."
+- **Confidentiality rules (do not relax).** No employer names, no client or pitch-target names (category only), no results or outcome words, no budgets, no reasons a deal did or didn’t happen, no original deck pages. Stop at the insight. Charts are redrawn from public Statistics Canada data in the site style. The section says so in one line: "Clients aren’t named. Most of these were confidential pitches, and I keep them that way." Highlights must not list pitched brands either (the Maple card no longer names them), so readers can’t match the two sections.
+- **Section:** opens with "That’s what happened. Here’s how I think.", then kicker CASE FILES, "How I work a problem." Filter chips by ability: Finding data (01), Reframing (02), Reading the audience (03), Closing and delivering (04). Eight featured cards show first, two per ability; "See all 13 cases" reveals the rest; picking an ability shows every case in it. Three columns, two at 768–1023px, one under 768px.
+- **Cards:** one cover style for every case, drawn as SVG in `img/cases/<slug>.svg` (dark ground, champagne line work, one motif per case; no photos on cards). Below: chapter label, title (the problem), category, and a skill line in job-ad words (Market research · Insight; Positioning · Problem framing; Audience insight · Go-to-market; New business · Delivery).
+- **Open case:** a full-screen sheet. Chapter band in the ability’s colour (01 ink, 02 champagne, 03 #1F1A14, 04 #EFE7D8) with a large outlined numeral. Left: category, title, three steps (The question / Where I looked / What I saw), one open at a time. Right: the drawing, which builds with the steps (`data-s` layers). Four cases carry real charts (investment income and Canada Child Benefit bubble charts from the 2021 Census, the owned/earned/paid diagram, the Lunar New Year calendar); the others show their cover art built step by step. The two signed public cases (watches, home furnishings) add a small photo of the work at step 3. A sticky foot shows Case N of M, Next step, and an "Up next" card with the next case’s cover and title; after step 3 that card pulses so the reader goes on. Deep links `#how-<slug>`; Back, Esc and × close it. Motion only on click, none under reduced motion. Without JS every case is listed in full.
+- **Overlap with Highlights:** the SparkLease (shelf space, bilingual creative), NEO SOUL (forecasting with no history) and CAOTAI (SXSW Online) method stories live in those Highlights panels under "How I worked it", not as case files.
+- **Held back until Sonny fills the gaps:** the Times Square billboard vote (result missing) and the oral care newcomer campaign (research method missing). The earned-media line of the electronics case stays blank until he supplies it.
+- No cross-links between Highlights and Case files for now (Sonny, 2026-11-28).
+- The SparkLease OEM gallery shows live placements, not mockups.
+
 ## 0. Read first
 
 | File | What it is |
